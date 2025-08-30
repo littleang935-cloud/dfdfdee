@@ -73,9 +73,9 @@ const Dashboard = ({ onLogout }) => {
   ];
 
   const blockchainActivity = [
-    { id: 1, type: 'stock_update', hash: '0x1a2b3c4d', item: 'Amoxicillin 500mg', action: 'Quantity updated: 50 → 45', time: '2 min ago', block: '12847592' },
-    { id: 2, type: 'purchase_order', hash: '0x5e6f7g8h', item: 'Surgical Gloves', action: 'Order created: 500 units', time: '15 min ago', block: '12847588' },
-    { id: 3, type: 'item_added', hash: '0x9i0j1k2l', item: 'Blood Pressure Monitor', action: 'New item added to inventory', time: '1 hour ago', block: '12847585' },
+    { id: 1, type: 'stock_update', hash: '0x1a2b3c4d', item: 'Amoxicillin 500mg', action: 'Quantity updated: 50 → 45', time: '2 min ago', block: '12847592', contract: '0xE2DFC07f329041a05f5257f27CE01e4329FC64Ef' },
+    { id: 2, type: 'purchase_order', hash: '0x5e6f7g8h', item: 'Surgical Gloves', action: 'Order created: 500 units', time: '15 min ago', block: '12847588', contract: '0xE2DFC07f329041a05f5257f27CE01e4329FC64Ef' },
+    { id: 3, type: 'item_added', hash: '0x9i0j1k2l', item: 'Blood Pressure Monitor', action: 'New item added to inventory', time: '1 hour ago', block: '12847585', contract: '0xE2DFC07f329041a05f5257f27CE01e4329FC64Ef' },
   ];
 
   const analyticsData = [
@@ -653,7 +653,13 @@ const Dashboard = ({ onLogout }) => {
 
                 {/* Recent Activity */}
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="text-xs text-green-600 font-medium">Contract Active</span>
+                    </div>
+                  </div>
                   <div className="space-y-4">
                     {blockchainActivity.slice(0, 5).map((activity) => (
                       <div key={activity.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
@@ -663,6 +669,7 @@ const Dashboard = ({ onLogout }) => {
                         <div className="flex-1">
                           <p className="text-sm font-medium text-gray-900">{activity.item}</p>
                           <p className="text-xs text-gray-600">{activity.action}</p>
+                          <p className="text-xs text-purple-600 font-mono">Contract: {activity.contract.slice(0, 8)}...</p>
                         </div>
                         <div className="text-right">
                           <p className="text-xs text-gray-500">{activity.time}</p>
@@ -886,32 +893,82 @@ const Dashboard = ({ onLogout }) => {
 
             {activeTab === 'blockchain' && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900">Recent Blockchain Activity</h2>
-                <div className="space-y-4">
-                  {blockchainActivity.map((activity) => (
-                    <div key={activity.id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start space-x-4">
-                          <div className="p-3 bg-blue-100 rounded-lg">
-                            <Shield className="w-6 h-6 text-blue-600" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <span className="text-sm font-medium text-gray-900">{activity.type.replace('_', ' ').toUpperCase()}</span>
-                              <span className="text-xs text-gray-500">•</span>
-                              <span className="text-xs text-gray-500">{activity.time}</span>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-gray-900">Blockchain Activity</h2>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-green-600 font-medium">Contract Active</span>
+                  </div>
+                </div>
+
+                {/* Contract Information */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Smart Contract Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Contract Address</label>
+                      <div className="flex items-center space-x-2">
+                        <code className="px-3 py-2 bg-gray-100 rounded-md text-sm font-mono text-gray-900">
+                          0xE2DFC07f329041a05f5257f27CE01e4329FC64Ef
+                        </code>
+                        <button className="p-1 text-gray-400 hover:text-gray-600">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Network</label>
+                      <div className="px-3 py-2 bg-blue-50 border border-blue-200 rounded-md">
+                        <span className="text-sm text-blue-700 font-medium">Ethereum Mainnet</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Contract Status</label>
+                      <div className="px-3 py-2 bg-green-50 border border-green-200 rounded-md">
+                        <span className="text-sm text-green-700 font-medium">Deployed & Verified</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Total Transactions</label>
+                      <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-md">
+                        <span className="text-sm text-gray-700 font-medium">1,247</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recent Transactions */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Transactions</h3>
+                  <div className="space-y-4">
+                    {blockchainActivity.map((activity) => (
+                      <div key={activity.id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start space-x-4">
+                            <div className="p-3 bg-blue-100 rounded-lg">
+                              <Shield className="w-6 h-6 text-blue-600" />
                             </div>
-                            <p className="text-sm text-gray-900 mb-1">{activity.item}</p>
-                            <p className="text-sm text-gray-600">{activity.action}</p>
-                            <div className="flex items-center space-x-4 mt-2">
-                              <span className="text-xs text-blue-600 font-mono">{activity.hash}</span>
-                              <span className="text-xs text-gray-500">Block #{activity.block}</span>
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <span className="text-sm font-medium text-gray-900">{activity.type.replace('_', ' ').toUpperCase()}</span>
+                                <span className="text-xs text-gray-500">•</span>
+                                <span className="text-xs text-gray-500">{activity.time}</span>
+                              </div>
+                              <p className="text-sm text-gray-900 mb-1">{activity.item}</p>
+                              <p className="text-sm text-gray-600">{activity.action}</p>
+                              <div className="flex items-center space-x-4 mt-2">
+                                <span className="text-xs text-blue-600 font-mono">{activity.hash}</span>
+                                <span className="text-xs text-gray-500">Block #{activity.block}</span>
+                                <span className="text-xs text-purple-600 font-mono">Contract: {activity.contract.slice(0, 8)}...</span>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
