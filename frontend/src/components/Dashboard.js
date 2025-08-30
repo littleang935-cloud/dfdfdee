@@ -31,13 +31,7 @@ const Dashboard = ({ onLogout }) => {
   
   // TrialChain+ColdCare state
   const [batches, setBatches] = useState([]);
-  const [sensorData, setSensorData] = useState([
-    { batchID: 'BATCH001', temperature: 4.2, humidity: 45.3, timestamp: new Date(Date.now() - 20000).toISOString() },
-    { batchID: 'BATCH001', temperature: 4.5, humidity: 46.1, timestamp: new Date(Date.now() - 15000).toISOString() },
-    { batchID: 'BATCH001', temperature: 4.1, humidity: 44.8, timestamp: new Date(Date.now() - 10000).toISOString() },
-    { batchID: 'BATCH001', temperature: 4.3, humidity: 45.7, timestamp: new Date(Date.now() - 5000).toISOString() },
-    { batchID: 'BATCH001', temperature: 4.0, humidity: 45.2, timestamp: new Date().toISOString() },
-  ]);
+  const [sensorData, setSensorData] = useState([]);
   
 
   const [riskAnalysis, setRiskAnalysis] = useState({});
@@ -199,7 +193,7 @@ const Dashboard = ({ onLogout }) => {
     }
   };
 
-  const fetchSensorData = async (batchId) => {
+  // const fetchSensorData = async (batchId) => {
     try {
       const response = await fetch(`http://localhost:8000/coldchain/data/${batchId}`);
       if (response.ok) {
@@ -269,25 +263,12 @@ const Dashboard = ({ onLogout }) => {
 
   useEffect(() => {
     if (activeTab === 'coldchain') {
-      fetchSensorData(selectedBatch);
       fetchRiskAnalysis(selectedBatch);
       // Simulate graph loading animation
       setGraphLoaded(false);
       setTimeout(() => setGraphLoaded(true), 1000);
     }
   }, [selectedBatch, activeTab]);
-
-  // Fetch sensor data when batch selection changes
-  useEffect(() => {
-    if (activeTab === 'coldchain' && selectedBatch) {
-      fetchSensorData(selectedBatch);
-    }
-  }, [selectedBatch]);
-
-  // Initialize sensor data when component mounts
-  useEffect(() => {
-    fetchSensorData(selectedBatch);
-  }, []);
 
   // Close notifications when clicking outside
   useEffect(() => {
