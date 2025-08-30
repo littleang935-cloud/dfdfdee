@@ -43,6 +43,7 @@ const Dashboard = ({ onLogout }) => {
   const [loading, setLoading] = useState(false);
   const [ws, setWs] = useState(null);
   const [graphLoaded, setGraphLoaded] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const batchIds = ['BATCH001', 'BATCH002', 'BATCH003'];
 
@@ -59,6 +60,15 @@ const Dashboard = ({ onLogout }) => {
     { id: 1, type: 'low_stock', message: 'Amoxicillin 500mg is running low (45 units left)', time: '5 min ago', severity: 'warning' },
     { id: 2, type: 'expiry', message: 'Insulin Pens expire in 30 days', time: '1 hour ago', severity: 'warning' },
     { id: 3, type: 'critical', message: 'Insulin Pens below critical threshold (12 units)', time: '2 hours ago', severity: 'critical' },
+  ];
+
+  const notifications = [
+    { id: 1, type: 'clinical_trial', message: 'New drug batch BATCH003 awaiting approval', time: '2 min ago', severity: 'info', icon: TestTube },
+    { id: 2, type: 'cold_chain', message: 'Temperature alert: BATCH003 exceeded safe range', time: '5 min ago', severity: 'warning', icon: Thermometer },
+    { id: 3, type: 'inventory', message: 'Amoxicillin 500mg is running low (45 units left)', time: '10 min ago', severity: 'warning', icon: Package },
+    { id: 4, type: 'blockchain', message: 'New transaction recorded: BATCH001 approved', time: '15 min ago', severity: 'success', icon: Shield },
+    { id: 5, type: 'expiry', message: 'Insulin Pens expire in 30 days', time: '1 hour ago', severity: 'warning', icon: AlertTriangle },
+    { id: 6, type: 'critical', message: 'Insulin Pens below critical threshold (12 units)', time: '2 hours ago', severity: 'critical', icon: AlertTriangle },
   ];
 
   const blockchainActivity = [
@@ -82,6 +92,22 @@ const Dashboard = ({ onLogout }) => {
     { name: 'Equipment', value: 20, color: '#F59E0B' },
     { name: 'Pain Management', value: 15, color: '#EF4444' },
     { name: 'Diabetes Care', value: 5, color: '#8B5CF6' },
+  ];
+
+  // Clinical Trials Overview Data
+  const clinicalTrialsOverview = [
+    { id: 1, batchID: 'BATCH001', drugName: 'COVID-19 Vaccine (Moderna)', status: 'approved', progress: 100, approvedBy: 'Regulator_001' },
+    { id: 2, batchID: 'BATCH002', drugName: 'Cancer Treatment Drug (Keytruda)', status: 'approved', progress: 100, approvedBy: 'Regulator_002' },
+    { id: 3, batchID: 'BATCH003', drugName: 'Diabetes Medication (Ozempic)', status: 'pending', progress: 65, approvedBy: null },
+    { id: 4, batchID: 'BATCH004', drugName: 'Antibiotic (Amoxicillin)', status: 'approved', progress: 100, approvedBy: 'Regulator_001' },
+    { id: 5, batchID: 'BATCH005', drugName: 'Pain Management (Oxycodone)', status: 'pending', progress: 45, approvedBy: null },
+  ];
+
+  // Cold Chain Overview Data
+  const coldChainOverview = [
+    { batchID: 'BATCH001', avgTemp: 4.2, status: 'SAFE', riskScore: 0.15, lastUpdate: '2 min ago' },
+    { batchID: 'BATCH002', avgTemp: 3.8, status: 'SAFE', riskScore: 0.08, lastUpdate: '5 min ago' },
+    { batchID: 'BATCH003', avgTemp: 5.8, status: 'WARNING', riskScore: 0.72, lastUpdate: '1 min ago' },
   ];
 
   const tabs = [
@@ -211,6 +237,18 @@ const Dashboard = ({ onLogout }) => {
     }
   }, [selectedBatch, activeTab]);
 
+  // Close notifications when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showNotifications && !event.target.closest('.notification-dropdown')) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showNotifications]);
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'good': return 'text-green-500 bg-green-100';
@@ -253,10 +291,59 @@ const Dashboard = ({ onLogout }) => {
                 Welcome back, <span className="font-semibold">{user.name}</span>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-                <Bell size={20} />
-              </button>
+                          <div className="flex items-center space-x-4">
+                <div className="relative notification-dropdown">
+                  <button 
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors relative"
+                  >
+                    <Bell size={20} />
+                    {notifications.length > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {notifications.length}
+                      </span>
+                    )}
+                  </button>
+                
+                {/* Notification Dropdown */}
+                {showNotifications && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto"
+                  >
+                    <div className="p-4 border-b border-gray-200">
+                      <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                    </div>
+                    <div className="divide-y divide-gray-100">
+                      {notifications.map((notification) => (
+                        <div key={notification.id} className="p-4 hover:bg-gray-50 transition-colors">
+                          <div className="flex items-start space-x-3">
+                            <div className={`p-2 rounded-full ${
+                              notification.severity === 'critical' ? 'bg-red-100' :
+                              notification.severity === 'warning' ? 'bg-yellow-100' :
+                              notification.severity === 'success' ? 'bg-green-100' :
+                              'bg-blue-100'
+                            }`}>
+                              <notification.icon size={16} className={
+                                notification.severity === 'critical' ? 'text-red-600' :
+                                notification.severity === 'warning' ? 'text-yellow-600' :
+                                notification.severity === 'success' ? 'text-green-600' :
+                                'text-blue-600'
+                              } />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm text-gray-900">{notification.message}</p>
+                              <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
               <button 
                 onClick={onLogout}
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
@@ -423,6 +510,109 @@ const Dashboard = ({ onLogout }) => {
                         <div className="text-right">
                           <p className="text-xs text-gray-500">{activity.time}</p>
                           <p className="text-xs text-blue-600 font-mono">{activity.hash}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Clinical Trials Overview */}
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Clinical Trials Status</h3>
+                    <span className="text-sm text-gray-500">{clinicalTrialsOverview.length} Active Trials</span>
+                  </div>
+                  <div className="space-y-4">
+                    {clinicalTrialsOverview.map((trial) => (
+                      <div key={trial.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          <div className={`p-2 rounded-full ${
+                            trial.status === 'approved' ? 'bg-green-100' : 'bg-yellow-100'
+                          }`}>
+                            <TestTube className={`w-4 h-4 ${
+                              trial.status === 'approved' ? 'text-green-600' : 'text-yellow-600'
+                            }`} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{trial.drugName}</p>
+                            <p className="text-xs text-gray-500">{trial.batchID}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="text-right">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-20 bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className={`h-2 rounded-full ${
+                                    trial.status === 'approved' ? 'bg-green-500' : 'bg-yellow-500'
+                                  }`}
+                                  style={{ width: `${trial.progress}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-xs text-gray-600">{trial.progress}%</span>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {trial.status === 'approved' ? `Approved by ${trial.approvedBy}` : 'Pending approval'}
+                            </p>
+                          </div>
+                          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                            trial.status === 'approved' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {trial.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Cold Chain Monitoring Overview */}
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Cold Chain Monitoring</h3>
+                    <span className="text-sm text-gray-500">Real-time Temperature Tracking</span>
+                  </div>
+                  <div className="space-y-4">
+                    {coldChainOverview.map((batch) => (
+                      <div key={batch.batchID} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          <div className={`p-2 rounded-full ${
+                            batch.status === 'SAFE' ? 'bg-green-100' : 'bg-red-100'
+                          }`}>
+                            <Thermometer className={`w-4 h-4 ${
+                              batch.status === 'SAFE' ? 'text-green-600' : 'text-red-600'
+                            }`} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{batch.batchID}</p>
+                            <p className="text-xs text-gray-500">Avg: {batch.avgTemp}°C</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="text-right">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-20 bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className={`h-2 rounded-full ${
+                                    batch.riskScore < 0.3 ? 'bg-green-500' : 
+                                    batch.riskScore < 0.7 ? 'bg-yellow-500' : 'bg-red-500'
+                                  }`}
+                                  style={{ width: `${batch.riskScore * 100}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-xs text-gray-600">{(batch.riskScore * 100).toFixed(0)}%</span>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">Updated {batch.lastUpdate}</p>
+                          </div>
+                          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                            batch.status === 'SAFE' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {batch.status}
+                          </span>
                         </div>
                       </div>
                     ))}
