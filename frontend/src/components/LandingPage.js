@@ -12,42 +12,23 @@ import {
   TrendingUp,
   Activity,
   Database,
-  Lock
+  Lock,
+  Sun,
+  Moon,
+  Sparkles
 } from 'lucide-react';
 
 const LandingPage = ({ onLogin }) => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    setMounted(true);
   }, []);
 
-  const floatingBubbles = Array.from({ length: 20 }, (_, i) => (
-    <motion.div
-      key={i}
-      className="absolute rounded-full bg-white/10 backdrop-blur-sm"
-      style={{
-        width: Math.random() * 100 + 50,
-        height: Math.random() * 100 + 50,
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`,
-      }}
-      animate={{
-        y: [0, -30, 0],
-        x: [0, Math.random() * 20 - 10, 0],
-        opacity: [0.3, 0.7, 0.3],
-      }}
-      transition={{
-        duration: Math.random() * 3 + 2,
-        repeat: Infinity,
-        ease: "easeInOut",
-      }}
-    />
-  ));
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
 
   const stats = [
     { label: "Items Tracked", value: "1,247", icon: Database },
@@ -110,52 +91,94 @@ const LandingPage = ({ onLogin }) => {
     }
   ];
 
+  if (!mounted) return null;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 relative overflow-hidden">
-      {/* Moving Background Elements */}
+    <div className={`min-h-screen transition-all duration-500 ${
+      isDarkMode 
+        ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white' 
+        : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900'
+    } relative overflow-hidden`}>
+      
+      {/* Modern Fluid Background */}
       <div className="absolute inset-0 overflow-hidden">
-        {floatingBubbles}
+        {/* Subtle gradient orbs */}
         <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"
+          className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl ${
+            isDarkMode 
+              ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10' 
+              : 'bg-gradient-to-r from-blue-200/30 to-purple-200/30'
+          }`}
           animate={{
-            x: [0, 100, 0],
-            y: [0, -50, 0],
+            x: [0, 50, 0],
+            y: [0, -30, 0],
           }}
           transition={{
-            duration: 20,
+            duration: 30,
             repeat: Infinity,
             ease: "easeInOut",
           }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl"
+          className={`absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl ${
+            isDarkMode 
+              ? 'bg-gradient-to-r from-purple-500/10 to-pink-500/10' 
+              : 'bg-gradient-to-r from-purple-200/30 to-pink-200/30'
+          }`}
           animate={{
-            x: [0, -100, 0],
-            y: [0, 50, 0],
+            x: [0, -50, 0],
+            y: [0, 30, 0],
           }}
           transition={{
-            duration: 25,
+            duration: 35,
             repeat: Infinity,
             ease: "easeInOut",
           }}
         />
+        
+        {/* Subtle grid pattern */}
+        <div className={`absolute inset-0 opacity-5 ${
+          isDarkMode ? 'bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)]' 
+          : 'bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.1)_1px,transparent_0)]'
+        } bg-[length:20px_20px]`} />
       </div>
+
+      {/* Theme Toggle */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        onClick={toggleTheme}
+        className={`fixed top-6 right-6 z-50 p-3 rounded-full backdrop-blur-sm border transition-all duration-300 ${
+          isDarkMode 
+            ? 'bg-white/10 border-white/20 text-white hover:bg-white/20' 
+            : 'bg-black/10 border-black/20 text-gray-900 hover:bg-black/20'
+        }`}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+      >
+        {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+      </motion.button>
 
       {/* Navigation */}
       <nav className="relative z-10 flex justify-between items-center p-6">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-2xl font-bold text-white"
+          className="text-2xl font-bold flex items-center gap-2"
         >
-          <span className="text-blue-400">Med</span>
-          <span className="text-green-400">Chain</span>
+          <Sparkles className={`w-8 h-8 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+          <span className={isDarkMode ? 'text-blue-400' : 'text-blue-600'}>Med</span>
+          <span className={isDarkMode ? 'text-green-400' : 'text-green-600'}>Chain</span>
         </motion.div>
         <motion.button
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={onLogin}
-          className="bg-white/10 backdrop-blur-sm text-white px-6 py-2 rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300"
+          className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
+            isDarkMode 
+              ? 'bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20' 
+              : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
+          }`}
         >
           Login
         </motion.button>
@@ -168,19 +191,27 @@ const LandingPage = ({ onLogin }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="text-6xl md:text-8xl font-bold text-white mb-6">
-            <span className="bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent">
+          <h1 className="text-6xl md:text-8xl font-bold mb-6">
+            <span className={`bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent ${
+              isDarkMode ? 'from-blue-400 to-green-400' : 'from-blue-600 to-green-600'
+            }`}>
               Next-Generation
             </span>
             <br />
-            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <span className={`bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent ${
+              isDarkMode ? 'from-purple-400 to-pink-400' : 'from-purple-600 to-pink-600'
+            }`}>
               Healthcare
             </span>
           </h1>
-          <h2 className="text-2xl md:text-3xl font-semibold text-white/80 mb-8">
+          <h2 className={`text-2xl md:text-3xl font-semibold mb-8 ${
+            isDarkMode ? 'text-white/80' : 'text-gray-700'
+          }`}>
             Blockchain-Powered Medical Inventory
           </h2>
-          <p className="text-xl text-white/70 max-w-3xl mx-auto mb-12">
+          <p className={`text-xl max-w-3xl mx-auto mb-12 ${
+            isDarkMode ? 'text-white/70' : 'text-gray-600'
+          }`}>
             Secure, transparent, and automated inventory management for healthcare facilities. 
             Every transaction recorded on the blockchain for complete audit trails.
           </p>
@@ -188,7 +219,7 @@ const LandingPage = ({ onLogin }) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={onLogin}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-2xl transition-all duration-300 flex items-center gap-2 mx-auto"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-2xl transition-all duration-300 flex items-center gap-2 mx-auto"
           >
             Get Started <ArrowRight size={20} />
           </motion.button>
@@ -198,7 +229,7 @@ const LandingPage = ({ onLogin }) => {
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={{ delay: 0.3, duration: 0.8 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 max-w-4xl mx-auto"
         >
           {stats.map((stat, index) => (
@@ -206,14 +237,22 @@ const LandingPage = ({ onLogin }) => {
               key={stat.label}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="text-center"
+              transition={{ delay: 0.4 + index * 0.1 }}
+              className={`text-center p-6 rounded-2xl backdrop-blur-sm border ${
+                isDarkMode 
+                  ? 'bg-white/5 border-white/10' 
+                  : 'bg-white/50 border-gray-200 shadow-lg'
+              }`}
             >
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <stat.icon className="w-8 h-8 text-blue-400 mx-auto mb-3" />
-                <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
-                <div className="text-white/70 text-sm">{stat.label}</div>
-              </div>
+              <stat.icon className={`w-8 h-8 mx-auto mb-3 ${
+                isDarkMode ? 'text-blue-400' : 'text-blue-600'
+              }`} />
+              <div className={`text-2xl font-bold mb-1 ${
+                isDarkMode ? 'text-white' : 'text-gray-900'
+              }`}>{stat.value}</div>
+              <div className={`text-sm ${
+                isDarkMode ? 'text-white/70' : 'text-gray-600'
+              }`}>{stat.label}</div>
             </motion.div>
           ))}
         </motion.div>
@@ -225,28 +264,42 @@ const LandingPage = ({ onLogin }) => {
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Why Choose <span className="text-blue-400">MedChain</span>?
-          </h2>
-          <p className="text-xl text-white/70 max-w-2xl mx-auto">
+          <h2 className={`text-4xl font-bold mb-4 ${
+            isDarkMode ? 'text-white' : 'text-gray-900'
+          }`}>Why Choose MedChain?</h2>
+          <p className={`text-xl max-w-2xl mx-auto ${
+            isDarkMode ? 'text-white/70' : 'text-gray-600'
+          }`}>
             Experience the future of healthcare inventory management with cutting-edge blockchain technology
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/20 transition-all duration-300"
+              transition={{ delay: index * 0.1, duration: 0.6 }}
+              viewport={{ once: true }}
+              className={`p-8 rounded-2xl backdrop-blur-sm border transition-all duration-300 hover:scale-105 ${
+                isDarkMode 
+                  ? 'bg-white/5 border-white/10 hover:bg-white/10' 
+                  : 'bg-white/50 border-gray-200 shadow-lg hover:shadow-xl'
+              }`}
             >
-              <feature.icon className="w-12 h-12 text-blue-400 mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
-              <p className="text-white/70">{feature.description}</p>
+              <feature.icon className={`w-12 h-12 mb-6 ${
+                isDarkMode ? 'text-blue-400' : 'text-blue-600'
+              }`} />
+              <h3 className={`text-xl font-semibold mb-4 ${
+                isDarkMode ? 'text-white' : 'text-gray-900'
+              }`}>{feature.title}</h3>
+              <p className={`${
+                isDarkMode ? 'text-white/70' : 'text-gray-600'
+              }`}>{feature.description}</p>
             </motion.div>
           ))}
         </div>
@@ -258,12 +311,15 @@ const LandingPage = ({ onLogin }) => {
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Trusted by <span className="text-green-400">Healthcare Leaders</span>
-          </h2>
-          <p className="text-xl text-white/70">
+          <h2 className={`text-4xl font-bold mb-4 ${
+            isDarkMode ? 'text-white' : 'text-gray-900'
+          }`}>Trusted by Healthcare Leaders</h2>
+          <p className={`text-xl max-w-2xl mx-auto ${
+            isDarkMode ? 'text-white/70' : 'text-gray-600'
+          }`}>
             See what healthcare professionals are saying about MedChain
           </p>
         </motion.div>
@@ -272,16 +328,29 @@ const LandingPage = ({ onLogin }) => {
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.author}
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
-              className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20"
+              transition={{ delay: index * 0.2, duration: 0.6 }}
+              viewport={{ once: true }}
+              className={`p-8 rounded-2xl backdrop-blur-sm border ${
+                isDarkMode 
+                  ? 'bg-white/5 border-white/10' 
+                  : 'bg-white/50 border-gray-200 shadow-lg'
+              }`}
             >
-              <p className="text-white/80 mb-6 italic">"{testimonial.quote}"</p>
+              <p className={`text-lg mb-6 italic ${
+                isDarkMode ? 'text-white/80' : 'text-gray-700'
+              }`}>"{testimonial.quote}"</p>
               <div>
-                <div className="font-semibold text-white">{testimonial.author}</div>
-                <div className="text-blue-400 text-sm">{testimonial.role}</div>
-                <div className="text-white/60 text-sm">{testimonial.hospital}</div>
+                <div className={`font-semibold ${
+                  isDarkMode ? 'text-white' : 'text-gray-900'
+                }`}>{testimonial.author}</div>
+                <div className={`text-sm ${
+                  isDarkMode ? 'text-white/60' : 'text-gray-500'
+                }`}>{testimonial.role}</div>
+                <div className={`text-sm ${
+                  isDarkMode ? 'text-white/60' : 'text-gray-500'
+                }`}>{testimonial.hospital}</div>
               </div>
             </motion.div>
           ))}
@@ -294,12 +363,19 @@ const LandingPage = ({ onLogin }) => {
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center max-w-4xl mx-auto"
+          viewport={{ once: true }}
+          className={`text-center max-w-4xl mx-auto p-12 rounded-3xl backdrop-blur-sm border ${
+            isDarkMode 
+              ? 'bg-white/5 border-white/10' 
+              : 'bg-white/50 border-gray-200 shadow-xl'
+          }`}
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Ready to Transform Your <span className="text-purple-400">Healthcare Inventory</span>?
-          </h2>
-          <p className="text-xl text-white/70 mb-8">
+          <h2 className={`text-4xl font-bold mb-6 ${
+            isDarkMode ? 'text-white' : 'text-gray-900'
+          }`}>Ready to Transform Your Healthcare Inventory?</h2>
+          <p className={`text-xl mb-8 ${
+            isDarkMode ? 'text-white/70' : 'text-gray-600'
+          }`}>
             Join leading healthcare facilities worldwide in adopting blockchain-powered inventory management. 
             Experience the future of secure, transparent, and automated healthcare supply chain management.
           </p>
@@ -307,9 +383,9 @@ const LandingPage = ({ onLogin }) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={onLogin}
-            className="bg-gradient-to-r from-green-500 to-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-2xl transition-all duration-300"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-2xl transition-all duration-300 flex items-center gap-2 mx-auto"
           >
-            Start Free Trial
+            Start Free Trial <ArrowRight size={20} />
           </motion.button>
         </motion.div>
       </section>
