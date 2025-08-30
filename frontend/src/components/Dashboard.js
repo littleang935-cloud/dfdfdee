@@ -194,38 +194,45 @@ const Dashboard = ({ onLogout }) => {
 
 
 
-  // Real-time data generation for live graph
+  // Live temperature data generation
   useEffect(() => {
     if (activeTab === 'coldchain') {
-      // Generate initial data if empty
-      if (sensorData.length === 0) {
-        const initialData = [];
-        for (let i = 0; i < 20; i++) {
-          const time = new Date(Date.now() - (20 - i) * 5000);
-          initialData.push({
-            batchID: selectedBatch,
-            temperature: 4 + Math.random() * 2 - 1, // 3-5°C range
-            humidity: 45 + Math.random() * 10 - 5, // 40-50% range
-            timestamp: time.toISOString()
+      // Clear existing data when switching batches
+      setSensorData([]);
+      
+      // Generate initial dataset
+      const generateInitialData = () => {
+        const data = [];
+        const now = Date.now();
+        
+        for (let i = 19; i >= 0; i--) {
+          const timestamp = new Date(now - i * 3000); // 3 second intervals
+          data.push({
+            time: timestamp.toLocaleTimeString(),
+            temperature: 4.2 + (Math.random() - 0.5) * 1.6, // 3.4-5.0°C
+            humidity: 45 + (Math.random() - 0.5) * 10, // 40-50%
+            timestamp: timestamp.toISOString()
           });
         }
-        setSensorData(initialData);
-      }
+        return data;
+      };
 
-      // Set up real-time data generation
+      setSensorData(generateInitialData());
+
+      // Real-time updates
       const interval = setInterval(() => {
-        const newDataPoint = {
-          batchID: selectedBatch,
-          temperature: 4 + Math.random() * 2 - 1, // 3-5°C range
-          humidity: 45 + Math.random() * 10 - 5, // 40-50% range
+        const newPoint = {
+          time: new Date().toLocaleTimeString(),
+          temperature: 4.2 + (Math.random() - 0.5) * 1.6,
+          humidity: 45 + (Math.random() - 0.5) * 10,
           timestamp: new Date().toISOString()
         };
 
         setSensorData(prev => {
-          const updated = [...prev, newDataPoint];
-          return updated.slice(-30); // Keep last 30 data points
+          const updated = [...prev, newPoint];
+          return updated.slice(-25); // Keep last 25 points for smooth display
         });
-      }, 2000); // Update every 2 seconds
+      }, 3000); // Update every 3 seconds
 
       return () => clearInterval(interval);
     }
@@ -947,62 +954,134 @@ const Dashboard = ({ onLogout }) => {
 
                 {/* Live Temperature Graph */}
                 <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Live Temperature Data - {selectedBatch}</h3>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-gray-900">Live Temperature Data</h3>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <span className="text-sm text-gray-600">Temperature (°C)</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <span className="text-sm text-gray-600">Humidity (%)</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                        <span className="text-sm text-gray-600">Live</span>
+                      </div>
+                    </div>
+                  </div>
+                  
                   <div className="h-80">
                     {!graphLoaded ? (
                       <div className="h-full flex items-center justify-center">
                         <div className="text-center">
                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                          <p className="text-gray-500">Loading live monitoring data...</p>
+                          <p className="text-gray-500">Initializing live monitoring...</p>
                         </div>
                       </div>
                     ) : (
                       <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.5 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="h-full"
                       >
                         <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={sensorData.filter(d => d.batchID === selectedBatch)}>
-                            <CartesianGrid strokeDasharray="3 3" />
+                          <LineChart data={sensorData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                             <XAxis 
-                              dataKey="timestamp" 
-                              tickFormatter={(value) => new Date(value).toLocaleTimeString()}
+                              dataKey="time" 
+                              tick={{ fontSize: 12, fill: '#666' }}
+                              tickLine={false}
+                              axisLine={false}
                             />
                             <YAxis 
-                              domain={[0, 10]}
-                              label={{ value: 'Temperature (°C)', angle: -90, position: 'insideLeft' }}
+                              yAxisId="left"
+                              domain={[2, 8]} 
+                              tick={{ fontSize: 12, fill: '#666' }}
+                              tickLine={false}
+                              axisLine={false}
+                              label={{ value: 'Temperature (°C)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#666' } }}
+                            />
+                            <YAxis 
+                              yAxisId="right"
+                              orientation="right"
+                              domain={[30, 60]} 
+                              tick={{ fontSize: 12, fill: '#666' }}
+                              tickLine={false}
+                              axisLine={false}
+                              label={{ value: 'Humidity (%)', angle: 90, position: 'insideRight', style: { textAnchor: 'middle', fill: '#666' } }}
                             />
                             <Tooltip 
-                              labelFormatter={(value) => new Date(value).toLocaleString()}
-                              formatter={(value, name) => [value, name === 'temperature' ? 'Temperature (°C)' : 'Humidity (%)']}
+                              contentStyle={{ 
+                                backgroundColor: 'white', 
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '8px',
+                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                              }}
+                              labelStyle={{ fontWeight: 'bold', color: '#374151' }}
                             />
-                            <Legend />
-                            <Line 
-                              type="monotone" 
-                              dataKey="temperature" 
-                              stroke="#3B82F6" 
-                              strokeWidth={2}
-                              dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
-                              activeDot={{ r: 6 }}
-                              animationDuration={2000}
+                            <Line
+                              yAxisId="left"
+                              type="monotone"
+                              dataKey="temperature"
+                              stroke="#3B82F6"
+                              strokeWidth={3}
+                              dot={{ fill: '#3B82F6', strokeWidth: 2, r: 3 }}
+                              activeDot={{ r: 5, stroke: '#3B82F6', strokeWidth: 2 }}
+                              animationDuration={1000}
                               animationBegin={0}
                             />
-                            <Line 
-                              type="monotone" 
-                              dataKey="humidity" 
-                              stroke="#10B981" 
-                              strokeWidth={2}
-                              dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
-                              activeDot={{ r: 6 }}
-                              animationDuration={2000}
-                              animationBegin={500}
+                            <Line
+                              yAxisId="right"
+                              type="monotone"
+                              dataKey="humidity"
+                              stroke="#10B981"
+                              strokeWidth={3}
+                              dot={{ fill: '#10B981', strokeWidth: 2, r: 3 }}
+                              activeDot={{ r: 5, stroke: '#10B981', strokeWidth: 2 }}
+                              animationDuration={1000}
+                              animationBegin={200}
                             />
                           </LineChart>
                         </ResponsiveContainer>
                       </motion.div>
                     )}
                   </div>
+                  
+                  {/* Current Values Display */}
+                  {graphLoaded && sensorData.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="mt-4 grid grid-cols-2 gap-4"
+                    >
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-blue-700">Current Temperature</span>
+                          <Thermometer className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="mt-2">
+                          <span className="text-2xl font-bold text-blue-900">
+                            {sensorData[sensorData.length - 1]?.temperature?.toFixed(1)}°C
+                          </span>
+                        </div>
+                      </div>
+                      <div className="bg-green-50 rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-green-700">Current Humidity</span>
+                          <div className="w-5 h-5 text-green-600">💧</div>
+                        </div>
+                        <div className="mt-2">
+                          <span className="text-2xl font-bold text-green-700">
+                            {sensorData[sensorData.length - 1]?.humidity?.toFixed(1)}%
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
 
                 {/* AI Risk Analysis */}
