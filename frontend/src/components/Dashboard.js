@@ -200,17 +200,30 @@ const Dashboard = ({ onLogout }) => {
       // Clear existing data when switching batches
       setSensorData([]);
       
-      // Generate initial dataset
+      // Generate initial dataset with stable base values
       const generateInitialData = () => {
         const data = [];
         const now = Date.now();
         
+        // Base values for each batch (more realistic)
+        const baseValues = {
+          'BATCH001': { temp: 4.2, humidity: 45 },
+          'BATCH002': { temp: 3.8, humidity: 47 },
+          'BATCH003': { temp: 5.8, humidity: 44 }
+        };
+        
+        const base = baseValues[selectedBatch] || { temp: 4.2, humidity: 45 };
+        
         for (let i = 19; i >= 0; i--) {
           const timestamp = new Date(now - i * 3000); // 3 second intervals
+          // Small variations around base values (more realistic)
+          const tempVariation = (Math.random() - 0.5) * 0.4; // ±0.2°C
+          const humidityVariation = (Math.random() - 0.5) * 2; // ±1%
+          
           data.push({
             time: timestamp.toLocaleTimeString(),
-            temperature: 4.2 + (Math.random() - 0.5) * 1.6, // 3.4-5.0°C
-            humidity: 45 + (Math.random() - 0.5) * 10, // 40-50%
+            temperature: base.temp + tempVariation,
+            humidity: base.humidity + humidityVariation,
             timestamp: timestamp.toISOString()
           });
         }
@@ -219,12 +232,24 @@ const Dashboard = ({ onLogout }) => {
 
       setSensorData(generateInitialData());
 
-      // Real-time updates
+      // Real-time updates with minimal variations
       const interval = setInterval(() => {
+        const baseValues = {
+          'BATCH001': { temp: 4.2, humidity: 45 },
+          'BATCH002': { temp: 3.8, humidity: 47 },
+          'BATCH003': { temp: 5.8, humidity: 44 }
+        };
+        
+        const base = baseValues[selectedBatch] || { temp: 4.2, humidity: 45 };
+        
+        // Very small realistic variations
+        const tempVariation = (Math.random() - 0.5) * 0.3; // ±0.15°C
+        const humidityVariation = (Math.random() - 0.5) * 1.5; // ±0.75%
+        
         const newPoint = {
           time: new Date().toLocaleTimeString(),
-          temperature: 4.2 + (Math.random() - 0.5) * 1.6,
-          humidity: 45 + (Math.random() - 0.5) * 10,
+          temperature: base.temp + tempVariation,
+          humidity: base.humidity + humidityVariation,
           timestamp: new Date().toISOString()
         };
 
