@@ -18,8 +18,152 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-trials_db = []
-coldchain_db = []
+trials_db = [
+    {
+        "batchID": "BATCH001",
+        "drugName": "COVID-19 Vaccine (Moderna)",
+        "expiry": "2024-12-31",
+        "sender": "Moderna Pharmaceuticals",
+        "receiver": "City General Hospital",
+        "status": "approved",
+        "timestamp": "2024-01-15T10:30:00Z",
+        "approved_by": "Regulator_001",
+        "approval_timestamp": "2024-01-15T11:45:00Z"
+    },
+    {
+        "batchID": "BATCH002",
+        "drugName": "Cancer Treatment Drug (Keytruda)",
+        "expiry": "2025-06-30",
+        "sender": "Merck & Co.",
+        "receiver": "Oncology Center",
+        "status": "approved",
+        "timestamp": "2024-01-14T14:20:00Z",
+        "approved_by": "Regulator_002",
+        "approval_timestamp": "2024-01-14T16:10:00Z"
+    },
+    {
+        "batchID": "BATCH003",
+        "drugName": "Diabetes Medication (Ozempic)",
+        "expiry": "2024-11-15",
+        "sender": "Novo Nordisk",
+        "receiver": "Regional Medical Center",
+        "status": "pending",
+        "timestamp": "2024-01-16T09:15:00Z"
+    },
+    {
+        "batchID": "BATCH004",
+        "drugName": "Antibiotic (Amoxicillin)",
+        "expiry": "2025-03-31",
+        "sender": "Pfizer Labs",
+        "receiver": "Community Clinic",
+        "status": "approved",
+        "timestamp": "2024-01-13T13:45:00Z",
+        "approved_by": "Regulator_001",
+        "approval_timestamp": "2024-01-13T15:30:00Z"
+    },
+    {
+        "batchID": "BATCH005",
+        "drugName": "Pain Management (Oxycodone)",
+        "expiry": "2024-08-20",
+        "sender": "Purdue Pharma",
+        "receiver": "Emergency Department",
+        "status": "pending",
+        "timestamp": "2024-01-16T11:30:00Z"
+    }
+]
+
+coldchain_db = [
+    {
+        "batchID": "BATCH001",
+        "temperature": 4.2,
+        "humidity": 45.3,
+        "timestamp": "2024-01-16T12:00:00Z"
+    },
+    {
+        "batchID": "BATCH001",
+        "temperature": 4.5,
+        "humidity": 46.1,
+        "timestamp": "2024-01-16T12:05:00Z"
+    },
+    {
+        "batchID": "BATCH001",
+        "temperature": 4.1,
+        "humidity": 44.8,
+        "timestamp": "2024-01-16T12:10:00Z"
+    },
+    {
+        "batchID": "BATCH001",
+        "temperature": 4.3,
+        "humidity": 45.7,
+        "timestamp": "2024-01-16T12:15:00Z"
+    },
+    {
+        "batchID": "BATCH001",
+        "temperature": 4.0,
+        "humidity": 45.2,
+        "timestamp": "2024-01-16T12:20:00Z"
+    },
+    {
+        "batchID": "BATCH002",
+        "temperature": 3.8,
+        "humidity": 47.2,
+        "timestamp": "2024-01-16T12:00:00Z"
+    },
+    {
+        "batchID": "BATCH002",
+        "temperature": 3.9,
+        "humidity": 47.5,
+        "timestamp": "2024-01-16T12:05:00Z"
+    },
+    {
+        "batchID": "BATCH002",
+        "temperature": 3.7,
+        "humidity": 46.9,
+        "timestamp": "2024-01-16T12:10:00Z"
+    },
+    {
+        "batchID": "BATCH002",
+        "temperature": 3.8,
+        "humidity": 47.1,
+        "timestamp": "2024-01-16T12:15:00Z"
+    },
+    {
+        "batchID": "BATCH002",
+        "temperature": 3.6,
+        "humidity": 46.8,
+        "timestamp": "2024-01-16T12:20:00Z"
+    },
+    {
+        "batchID": "BATCH003",
+        "temperature": 5.2,
+        "humidity": 43.1,
+        "timestamp": "2024-01-16T12:00:00Z"
+    },
+    {
+        "batchID": "BATCH003",
+        "temperature": 5.5,
+        "humidity": 43.8,
+        "timestamp": "2024-01-16T12:05:00Z"
+    },
+    {
+        "batchID": "BATCH003",
+        "temperature": 5.8,
+        "humidity": 44.2,
+        "timestamp": "2024-01-16T12:10:00Z"
+    },
+    {
+        "batchID": "BATCH003",
+        "temperature": 6.1,
+        "humidity": 44.7,
+        "timestamp": "2024-01-16T12:15:00Z"
+    },
+    {
+        "batchID": "BATCH003",
+        "temperature": 6.3,
+        "humidity": 45.1,
+        "timestamp": "2024-01-16T12:20:00Z"
+    }
+]
 inventory_db = [
     {
         "id": 1,

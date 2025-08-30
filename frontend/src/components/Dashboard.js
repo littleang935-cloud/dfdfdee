@@ -42,6 +42,7 @@ const Dashboard = ({ onLogout }) => {
   });
   const [loading, setLoading] = useState(false);
   const [ws, setWs] = useState(null);
+  const [graphLoaded, setGraphLoaded] = useState(false);
 
   const batchIds = ['BATCH001', 'BATCH002', 'BATCH003'];
 
@@ -204,6 +205,9 @@ const Dashboard = ({ onLogout }) => {
   useEffect(() => {
     if (activeTab === 'coldchain') {
       fetchRiskAnalysis(selectedBatch);
+      // Simulate graph loading animation
+      setGraphLoaded(false);
+      setTimeout(() => setGraphLoaded(true), 1000);
     }
   }, [selectedBatch, activeTab]);
 
@@ -746,40 +750,59 @@ const Dashboard = ({ onLogout }) => {
                 <div className="bg-white rounded-lg shadow-md p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-4">Live Temperature Data - {selectedBatch}</h3>
                   <div className="h-80">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={sensorData.filter(d => d.batchID === selectedBatch)}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis 
-                          dataKey="timestamp" 
-                          tickFormatter={(value) => new Date(value).toLocaleTimeString()}
-                        />
-                        <YAxis 
-                          domain={[0, 10]}
-                          label={{ value: 'Temperature (°C)', angle: -90, position: 'insideLeft' }}
-                        />
-                        <Tooltip 
-                          labelFormatter={(value) => new Date(value).toLocaleString()}
-                          formatter={(value, name) => [value, name === 'temperature' ? 'Temperature (°C)' : 'Humidity (%)']}
-                        />
-                        <Legend />
-                        <Line 
-                          type="monotone" 
-                          dataKey="temperature" 
-                          stroke="#3B82F6" 
-                          strokeWidth={2}
-                          dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
-                          activeDot={{ r: 6 }}
-                        />
-                        <Line 
-                          type="monotone" 
-                          dataKey="humidity" 
-                          stroke="#10B981" 
-                          strokeWidth={2}
-                          dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
-                          activeDot={{ r: 6 }}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
+                    {!graphLoaded ? (
+                      <div className="h-full flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                          <p className="text-gray-500">Loading live monitoring data...</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={sensorData.filter(d => d.batchID === selectedBatch)}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis 
+                              dataKey="timestamp" 
+                              tickFormatter={(value) => new Date(value).toLocaleTimeString()}
+                            />
+                            <YAxis 
+                              domain={[0, 10]}
+                              label={{ value: 'Temperature (°C)', angle: -90, position: 'insideLeft' }}
+                            />
+                            <Tooltip 
+                              labelFormatter={(value) => new Date(value).toLocaleString()}
+                              formatter={(value, name) => [value, name === 'temperature' ? 'Temperature (°C)' : 'Humidity (%)']}
+                            />
+                            <Legend />
+                            <Line 
+                              type="monotone" 
+                              dataKey="temperature" 
+                              stroke="#3B82F6" 
+                              strokeWidth={2}
+                              dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
+                              activeDot={{ r: 6 }}
+                              animationDuration={2000}
+                              animationBegin={0}
+                            />
+                            <Line 
+                              type="monotone" 
+                              dataKey="humidity" 
+                              stroke="#10B981" 
+                              strokeWidth={2}
+                              dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
+                              activeDot={{ r: 6 }}
+                              animationDuration={2000}
+                              animationBegin={500}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </motion.div>
+                    )}
                   </div>
                 </div>
 
@@ -787,16 +810,31 @@ const Dashboard = ({ onLogout }) => {
                 <div className="bg-white rounded-lg shadow-md p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-4">AI Risk Analysis - {selectedBatch}</h3>
                   
-                  {riskAnalysis.status ? (
-                    <div className="space-y-4">
+                  {!graphLoaded ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                      <p className="text-gray-500">Analyzing temperature patterns...</p>
+                    </div>
+                  ) : riskAnalysis.status ? (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className="space-y-4"
+                    >
                       {/* Status Indicator */}
                       <div className="flex items-center space-x-4">
                         <span className="text-lg font-medium text-gray-700">Status:</span>
-                        <div className={`px-4 py-2 rounded-full ${getStatusBgColorColdChain(riskAnalysis.status)}`}>
+                        <motion.div 
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                          className={`px-4 py-2 rounded-full ${getStatusBgColorColdChain(riskAnalysis.status)}`}
+                        >
                           <span className={`font-bold text-lg ${getStatusColorColdChain(riskAnalysis.status)}`}>
                             {riskAnalysis.status}
                           </span>
-                        </div>
+                        </motion.div>
                       </div>
 
                       {/* Risk Score */}
@@ -804,13 +842,15 @@ const Dashboard = ({ onLogout }) => {
                         <span className="text-lg font-medium text-gray-700">Risk Score:</span>
                         <div className="flex items-center space-x-2">
                           <div className="w-32 bg-gray-200 rounded-full h-2">
-                            <div 
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${riskAnalysis.risk_score * 100}%` }}
+                              transition={{ delay: 0.4, duration: 1 }}
                               className={`h-2 rounded-full ${
                                 riskAnalysis.risk_score < 0.3 ? 'bg-green-500' : 
                                 riskAnalysis.risk_score < 0.7 ? 'bg-yellow-500' : 'bg-red-500'
                               }`}
-                              style={{ width: `${riskAnalysis.risk_score * 100}%` }}
-                            ></div>
+                            ></motion.div>
                           </div>
                           <span className="text-sm font-medium text-gray-600">
                             {(riskAnalysis.risk_score * 100).toFixed(1)}%
@@ -820,16 +860,28 @@ const Dashboard = ({ onLogout }) => {
 
                       {/* Recommendations */}
                       {riskAnalysis.recommendations && riskAnalysis.recommendations.length > 0 && (
-                        <div>
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.6 }}
+                        >
                           <span className="text-lg font-medium text-gray-700 block mb-2">Recommendations:</span>
                           <ul className="list-disc list-inside space-y-1">
                             {riskAnalysis.recommendations.map((rec, index) => (
-                              <li key={index} className="text-gray-600">{rec}</li>
+                              <motion.li 
+                                key={index} 
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.8 + index * 0.1 }}
+                                className="text-gray-600"
+                              >
+                                {rec}
+                              </motion.li>
                             ))}
                           </ul>
-                        </div>
+                        </motion.div>
                       )}
-                    </div>
+                    </motion.div>
                   ) : (
                     <div className="text-center py-8 text-gray-500">
                       Loading risk analysis...
@@ -841,32 +893,53 @@ const Dashboard = ({ onLogout }) => {
                 <div className="bg-white rounded-lg shadow-md p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-4">Real-time Sensor Data Feed</h3>
                   <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {sensorData
-                      .filter(d => d.batchID === selectedBatch)
-                      .slice(-10)
-                      .reverse()
-                      .map((data, index) => (
-                        <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
-                          <div className="flex space-x-4">
-                            <span className="text-sm text-gray-600">
-                              {new Date(data.timestamp).toLocaleTimeString()}
-                            </span>
-                            <span className="text-sm font-medium">
-                              Temp: {data.temperature}°C
-                            </span>
-                            <span className="text-sm font-medium">
-                              Humidity: {data.humidity}%
-                            </span>
-                          </div>
-                          <div className={`px-2 py-1 rounded text-xs font-medium ${
-                            data.temperature >= 2 && data.temperature <= 8 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {data.temperature >= 2 && data.temperature <= 8 ? 'SAFE' : 'WARNING'}
-                          </div>
+                    {!graphLoaded ? (
+                      <div className="text-center py-8">
+                        <div className="animate-pulse space-y-3">
+                          {[...Array(5)].map((_, i) => (
+                            <div key={i} className="h-12 bg-gray-200 rounded-md"></div>
+                          ))}
                         </div>
-                      ))}
+                      </div>
+                    ) : (
+                      sensorData
+                        .filter(d => d.batchID === selectedBatch)
+                        .slice(-10)
+                        .reverse()
+                        .map((data, index) => (
+                          <motion.div 
+                            key={index} 
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.1, duration: 0.3 }}
+                            className="flex justify-between items-center p-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors"
+                          >
+                            <div className="flex space-x-4">
+                              <span className="text-sm text-gray-600">
+                                {new Date(data.timestamp).toLocaleTimeString()}
+                              </span>
+                              <span className="text-sm font-medium">
+                                Temp: {data.temperature}°C
+                              </span>
+                              <span className="text-sm font-medium">
+                                Humidity: {data.humidity}%
+                              </span>
+                            </div>
+                            <motion.div 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ delay: index * 0.1 + 0.2, type: "spring", stiffness: 200 }}
+                              className={`px-2 py-1 rounded text-xs font-medium ${
+                                data.temperature >= 2 && data.temperature <= 8 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : 'bg-red-100 text-red-800'
+                              }`}
+                            >
+                              {data.temperature >= 2 && data.temperature <= 8 ? 'SAFE' : 'WARNING'}
+                            </motion.div>
+                          </motion.div>
+                        ))
+                    )}
                   </div>
                 </div>
               </div>
