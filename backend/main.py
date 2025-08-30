@@ -20,6 +20,123 @@ app.add_middleware(
 
 trials_db = []
 coldchain_db = []
+inventory_db = [
+    {
+        "id": 1,
+        "name": "Amoxicillin 500mg",
+        "category": "Antibiotics",
+        "stock": 45,
+        "maxStock": 50,
+        "price": 45.99,
+        "status": "low",
+        "expiry": "2024-12-31",
+        "supplier": "Pfizer Labs",
+        "location": "Storage A"
+    },
+    {
+        "id": 2,
+        "name": "Surgical Gloves (Box)",
+        "category": "Consumables",
+        "stock": 156,
+        "maxStock": 100,
+        "price": 23.5,
+        "status": "good",
+        "expiry": "2025-06-30",
+        "supplier": "Medical Supplies Co",
+        "location": "Storage B"
+    },
+    {
+        "id": 3,
+        "name": "Insulin Pens",
+        "category": "Diabetes Care",
+        "stock": 12,
+        "maxStock": 25,
+        "price": 89.99,
+        "status": "critical",
+        "expiry": "2024-11-15",
+        "supplier": "Novo Nordisk",
+        "location": "Cold Storage"
+    },
+    {
+        "id": 4,
+        "name": "Blood Pressure Monitors",
+        "category": "Equipment",
+        "stock": 8,
+        "maxStock": 5,
+        "price": 129.99,
+        "status": "good",
+        "expiry": "2026-12-31",
+        "supplier": "Omron Healthcare",
+        "location": "Equipment Room"
+    },
+    {
+        "id": 5,
+        "name": "Paracetamol 500mg",
+        "category": "Pain Management",
+        "stock": 25,
+        "maxStock": 30,
+        "price": 12.99,
+        "status": "low",
+        "expiry": "2025-03-31",
+        "supplier": "Generic Pharma",
+        "location": "Storage A"
+    }
+]
+alerts_db = [
+    {
+        "id": 1,
+        "type": "low_stock",
+        "message": "Amoxicillin 500mg is running low (45 units left)",
+        "time": "5 min ago",
+        "severity": "warning",
+        "item_id": 1
+    },
+    {
+        "id": 2,
+        "type": "expiry",
+        "message": "Insulin Pens expire in 30 days",
+        "time": "1 hour ago",
+        "severity": "warning",
+        "item_id": 3
+    },
+    {
+        "id": 3,
+        "type": "critical",
+        "message": "Insulin Pens below critical threshold (12 units)",
+        "time": "2 hours ago",
+        "severity": "critical",
+        "item_id": 3
+    }
+]
+blockchain_activity = [
+    {
+        "id": 1,
+        "type": "stock_update",
+        "hash": "0x1a2b3c4d",
+        "item": "Amoxicillin 500mg",
+        "action": "Quantity updated: 50 → 45",
+        "time": "2 min ago",
+        "block": "12847592"
+    },
+    {
+        "id": 2,
+        "type": "purchase_order",
+        "hash": "0x5e6f7g8h",
+        "item": "Surgical Gloves",
+        "action": "Order created: 500 units",
+        "time": "15 min ago",
+        "block": "12847588"
+    },
+    {
+        "id": 3,
+        "type": "item_added",
+        "hash": "0x9i0j1k2l",
+        "item": "Blood Pressure Monitor",
+        "action": "New item added to inventory",
+        "time": "1 hour ago",
+        "block": "12847585"
+    }
+]
 
 class DrugBatch(BaseModel):
     batchID: Optional[str] = None
@@ -133,6 +250,57 @@ async def get_risk_analysis(batch_id: str):
 async def get_batch_data(batch_id: str):
     batch_data = [d for d in coldchain_db if d["batchID"] == batch_id]
     return {"data": batch_data}
+
+# Inventory Management Endpoints
+@app.get("/inventory")
+async def get_inventory():
+    return {"items": inventory_db}
+
+@app.get("/inventory/{item_id}")
+async def get_inventory_item(item_id: int):
+    for item in inventory_db:
+        if item["id"] == item_id:
+            return item
+    raise HTTPException(status_code=404, detail="Item not found")
+
+@app.post("/inventory")
+async def add_inventory_item(item: dict):
+    item["id"] = len(inventory_db) + 1
+    inventory_db.append(item)
+    return {"message": "Item added successfully", "item": item}
+
+# Alerts Endpoints
+@app.get("/alerts")
+async def get_alerts():
+    return {"alerts": alerts_db}
+
+@app.put("/alerts/{alert_id}/resolve")
+async def resolve_alert(alert_id: int):
+    for alert in alerts_db:
+        if alert["id"] == alert_id:
+            alert["resolved"] = True
+            alert["resolved_at"] = datetime.now().isoformat()
+            return {"message": f"Alert {alert_id} resolved"}
+    raise HTTPException(status_code=404, detail="Alert not found")
+
+# Blockchain Activity Endpoints
+@app.get("/blockchain/activity")
+async def get_blockchain_activity():
+    return {"activities": blockchain_activity}
+
+# Dashboard Stats
+@app.get("/dashboard/stats")
+async def get_dashboard_stats():
+    total_items = len(inventory_db)
+    low_stock_alerts = len([item for item in inventory_db if item["status"] in ["low", "critical"]])
+    total_value = sum(item["stock"] * item["price"] for item in inventory_db)
+    
+    return {
+        "total_items": total_items,
+        "low_stock_alerts": low_stock_alerts,
+        "total_value": round(total_value, 2),
+        "active_alerts": len(alerts_db)
+    }
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
