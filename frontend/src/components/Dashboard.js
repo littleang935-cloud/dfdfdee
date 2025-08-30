@@ -182,6 +182,58 @@ const Dashboard = ({ onLogout }) => {
 
   const fetchRiskAnalysis = async (batchId) => {
     try {
+      // First try to get ML prediction using current sensor data
+      const currentData = sensorData[sensorData.length - 1];
+      
+      if (currentData) {
+        // Use ML model for prediction
+        const mlResponse = await fetch('http://localhost:8000/coldchain/predict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            batch_id: batchId,
+            temp_c: currentData.temperature,
+            humidity: currentData.humidity
+          })
+        });
+
+        if (mlResponse.ok) {
+          const mlResult = await mlResponse.json();
+          
+          // Convert ML prediction to risk analysis format
+          const riskScore = mlResult.risk === 'Spoiled' ? 0.9 : 0.1;
+          const status = mlResult.risk === 'Spoiled' ? 'CRITICAL' : 'SAFE';
+          
+          let recommendations = [];
+          if (mlResult.risk === 'Spoiled') {
+            recommendations = [
+              'ML Model: High risk of spoilage detected!',
+              'Temperature or humidity outside safe range',
+              'Immediate action required',
+              'Check cooling system and environmental controls',
+              'Contact maintenance team immediately'
+            ];
+          } else {
+            recommendations = [
+              'ML Model: Conditions appear safe',
+              'Temperature and humidity within optimal range',
+              'Continue standard monitoring',
+              'No immediate action required'
+            ];
+          }
+
+          setRiskAnalysis({
+            status,
+            risk_score: riskScore,
+            recommendations
+          });
+          return;
+        }
+      }
+
+      // Fallback to traditional risk calculation
       const response = await fetch(`http://localhost:8000/coldchain/risk?batch_id=${batchId}`);
       if (response.ok) {
         const analysis = await response.json();

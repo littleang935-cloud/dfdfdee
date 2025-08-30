@@ -9,7 +9,18 @@ from datetime import datetime, timedelta
 import uuid
 import joblib
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+
+# Load ML model at startup
+try:
+    model = joblib.load('model.pkl')
+    scaler = joblib.load('scaler.pkl')
+    print("✅ ML model loaded successfully!")
+except Exception as e:
+    print(f"⚠️  Warning: Could not load ML model: {e}")
+    model = None
+    scaler = None
 
 app = FastAPI(title="TrialChain+ColdCare API", version="1.0.0")
 
@@ -336,20 +347,7 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-# Global variables for ML model
-ml_model = None
-label_encoder = None
 
-def load_ml_model():
-    global ml_model, label_encoder
-    try:
-        ml_model = joblib.load('model.pkl')
-        label_encoder = joblib.load('label_encoder.pkl')
-        print("ML model loaded successfully!")
-    except FileNotFoundError:
-        print("ML model files not found. Please run train_model.py first.")
-        ml_model = None
-        label_encoder = None
 
 @app.post("/trials")
 async def create_batch(batch: DrugBatch):
@@ -424,48 +422,51 @@ async def get_batch_data(batch_id: str):
 
 @app.post("/coldchain/predict")
 async def predict_risk(request: PredictionRequest):
-    if ml_model is None or label_encoder is None:
+    if model is None or scaler is None:
         raise HTTPException(status_code=500, detail="ML model not loaded")
     
     try:
         # Prepare input data
-        input_data = pd.DataFrame({
-            'temp_c': [request.temp_c],
-            'humidity': [request.humidity]
-        })
+        input_data = np.array([[request.temp_c, request.humidity]])
+        
+        # Scale the input data
+        input_scaled = scaler.transform(input_data)
         
         # Make prediction
-        prediction = ml_model.predict(input_data)
-        risk_label = label_encoder.inverse_transform(prediction)[0]
+        prediction = model.predict(input_scaled)[0]
         
         return PredictionResponse(
             batch_id=request.batch_id,
-            risk=risk_label
+            risk=prediction
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
 
 @app.get("/coldchain/test")
 async def test_ml_model():
-    if ml_model is None or label_encoder is None:
+    if model is None or scaler is None:
         raise HTTPException(status_code=500, detail="ML model not loaded")
     
     try:
         # Test with sample data
-        test_data = pd.DataFrame({
-            'temp_c': [4.5, 9.2, 2.0],
-            'humidity': [70, 65, 75]
-        })
+        test_data = np.array([
+            [4.5, 70],  # Safe conditions
+            [9.2, 65],  # Spoiled conditions
+            [2.0, 75]   # Spoiled conditions
+        ])
         
-        predictions = ml_model.predict(test_data)
-        risk_labels = label_encoder.inverse_transform(predictions)
+        # Scale the test data
+        test_scaled = scaler.transform(test_data)
+        
+        # Make predictions
+        predictions = model.predict(test_scaled)
         
         return {
             "message": "ML model is working correctly",
             "test_predictions": [
-                {"temp_c": 4.5, "humidity": 70, "risk": risk_labels[0]},
-                {"temp_c": 9.2, "humidity": 65, "risk": risk_labels[1]},
-                {"temp_c": 2.0, "humidity": 75, "risk": risk_labels[2]}
+                {"temp_c": 4.5, "humidity": 70, "risk": predictions[0]},
+                {"temp_c": 9.2, "humidity": 65, "risk": predictions[1]},
+                {"temp_c": 2.0, "humidity": 75, "risk": predictions[2]}
             ]
         }
     except Exception as e:
@@ -534,7 +535,6 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @app.on_event("startup")
 async def startup_event():
-    load_ml_model()
     asyncio.create_task(generate_fake_sensor_data())
 
 async def generate_fake_sensor_data():
