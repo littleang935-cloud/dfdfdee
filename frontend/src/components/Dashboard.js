@@ -31,7 +31,18 @@ const Dashboard = ({ onLogout }) => {
   
   // TrialChain+ColdCare state
   const [batches, setBatches] = useState([]);
-  const [sensorData, setSensorData] = useState([]);
+  const [sensorData, setSensorData] = useState([
+    { batchID: 'BATCH001', temperature: 4.2, humidity: 45.3, timestamp: new Date(Date.now() - 20000).toISOString() },
+    { batchID: 'BATCH001', temperature: 4.5, humidity: 46.1, timestamp: new Date(Date.now() - 15000).toISOString() },
+    { batchID: 'BATCH001', temperature: 4.1, humidity: 44.8, timestamp: new Date(Date.now() - 10000).toISOString() },
+    { batchID: 'BATCH001', temperature: 4.3, humidity: 45.7, timestamp: new Date(Date.now() - 5000).toISOString() },
+    { batchID: 'BATCH001', temperature: 4.0, humidity: 45.2, timestamp: new Date().toISOString() },
+  ]);
+  
+  // Debug sensor data changes
+  useEffect(() => {
+    console.log('Sensor data updated:', sensorData);
+  }, [sensorData]);
   const [riskAnalysis, setRiskAnalysis] = useState({});
   const [selectedBatch, setSelectedBatch] = useState('BATCH001');
   const [formData, setFormData] = useState({
@@ -192,12 +203,16 @@ const Dashboard = ({ onLogout }) => {
   };
 
   const fetchSensorData = async (batchId) => {
+    console.log('Fetching sensor data for batch:', batchId);
     try {
       const response = await fetch(`http://localhost:8000/coldchain/data/${batchId}`);
+      console.log('Response status:', response.status);
       if (response.ok) {
         const data = await response.json();
-        setSensorData(data.data);
+        console.log('Received sensor data:', data);
+        setSensorData(data.data || []);
       } else {
+        console.log('API returned error, using fallback data');
         // Fallback data if API doesn't return data
         const fallbackData = [
           { batchID: batchId, temperature: 4.2, humidity: 45.3, timestamp: new Date(Date.now() - 20000).toISOString() },
@@ -999,6 +1014,7 @@ const Dashboard = ({ onLogout }) => {
                       >
                         <ResponsiveContainer width="100%" height="100%">
                           <LineChart data={sensorData.filter(d => d.batchID === selectedBatch)}>
+                            {console.log('Graph data:', sensorData.filter(d => d.batchID === selectedBatch))}
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis 
                               dataKey="timestamp" 
