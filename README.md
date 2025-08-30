@@ -40,10 +40,12 @@ A comprehensive blockchain-powered healthcare inventory management system with i
 
 ### 🌡️ Cold-Chain Monitoring
 - **Live Temperature Data**: Real-time graph with dual Y-axis
-- **AI Risk Analysis**: Dynamic risk assessment
+- **AI Risk Analysis**: Dynamic risk assessment using ML model
+- **ML Model Integration**: Logistic Regression classifier for risk prediction
 - **Real-time Sensor Feed**: Live data updates every 3 seconds
 - **Batch-specific Monitoring**: Individual batch tracking
 - **Status Indicators**: SAFE, WARNING, CRITICAL states
+- **ML Predictions**: Real-time Safe/Spoiled classification
 
 ### 🔔 Active Alerts System
 - **Low Stock Alerts**: Automated notifications
@@ -83,6 +85,9 @@ cd backend
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
+
+# Train the ML model
+python3 train_model.py
 ```
 
 3. **Frontend Setup**
@@ -228,6 +233,28 @@ Content-Type: application/json
 }
 ```
 
+#### ML Model Prediction
+```http
+POST /coldchain/predict
+Content-Type: application/json
+
+{
+  "batch_id": "BATCH001",
+  "temp_c": 4.5,
+  "humidity": 70
+}
+Response: {
+  "batch_id": "BATCH001",
+  "risk": "Safe"
+}
+```
+
+#### Test ML Model
+```http
+GET /coldchain/test
+Response: Test predictions with sample data to verify model functionality
+```
+
 ### 🔔 Alerts Routes
 
 #### Get Active Alerts
@@ -356,6 +383,10 @@ Response: Detailed transaction information
 - **Uvicorn**: ASGI server
 - **Pydantic**: Data validation
 - **WebSocket**: Real-time communication
+- **scikit-learn**: Machine learning library
+- **pandas**: Data manipulation
+- **joblib**: Model serialization
+- **Logistic Regression**: ML model for risk prediction
 
 ### Development Tools
 - **npm**: Package management
