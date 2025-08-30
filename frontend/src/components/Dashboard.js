@@ -263,6 +263,16 @@ const Dashboard = ({ onLogout }) => {
 
   useEffect(() => {
     if (activeTab === 'coldchain') {
+      // Fetch initial data from API
+      fetch(`http://localhost:8000/coldchain/data/${selectedBatch}`)
+        .then(response => response.json())
+        .then(data => {
+          setSensorData(data.data || []);
+        })
+        .catch(error => {
+          console.error('Error fetching initial sensor data:', error);
+        });
+      
       fetchRiskAnalysis(selectedBatch);
       // Simulate graph loading animation
       setGraphLoaded(false);
