@@ -19,13 +19,31 @@ import {
   Database,
   Activity,
   Shield,
-  Bell
+  Bell,
+  Flask,
+  Zap
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 
 const Dashboard = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [user] = useState({ name: 'Dr. Sarah Johnson', role: 'Administrator' });
+  
+  // TrialChain+ColdCare state
+  const [batches, setBatches] = useState([]);
+  const [sensorData, setSensorData] = useState([]);
+  const [riskAnalysis, setRiskAnalysis] = useState({});
+  const [selectedBatch, setSelectedBatch] = useState('BATCH001');
+  const [formData, setFormData] = useState({
+    drugName: '',
+    expiry: '',
+    sender: '',
+    receiver: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [ws, setWs] = useState(null);
+
+  const batchIds = ['BATCH001', 'BATCH002', 'BATCH003'];
 
   // Mock data
   const inventoryItems = [
@@ -68,6 +86,7 @@ const Dashboard = ({ onLogout }) => {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'inventory', label: 'Inventory', icon: Package },
+    { id: 'clinical-trials', label: 'Clinical Trials', icon: Flask },
     { id: 'coldchain', label: 'Cold Chain', icon: Thermometer },
     { id: 'analytics', label: 'Analytics', icon: TrendingUp },
     { id: 'alerts', label: 'Alerts', icon: Bell },
@@ -75,6 +94,118 @@ const Dashboard = ({ onLogout }) => {
     { id: 'users', label: 'Users', icon: Users },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
+
+  // TrialChain+ColdCare API functions
+  const fetchBatches = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/trials');
+      const data = await response.json();
+      setBatches(data.batches);
+    } catch (error) {
+      console.error('Error fetching batches:', error);
+    }
+  };
+
+  const handleSubmitBatch = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      const response = await fetch('http://localhost:8000/trials', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      if (response.ok) {
+        setFormData({
+          drugName: '',
+          expiry: '',
+          sender: '',
+          receiver: ''
+        });
+        fetchBatches();
+      }
+    } catch (error) {
+      console.error('Error creating batch:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApproveBatch = async (batchId) => {
+    try {
+      const response = await fetch(`http://localhost:8000/trials/${batchId}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        fetchBatches();
+      }
+    } catch (error) {
+      console.error('Error approving batch:', error);
+    }
+  };
+
+  const fetchRiskAnalysis = async (batchId) => {
+    try {
+      const response = await fetch(`http://localhost:8000/coldchain/risk?batch_id=${batchId}`);
+      if (response.ok) {
+        const analysis = await response.json();
+        setRiskAnalysis(analysis);
+      }
+    } catch (error) {
+      console.error('Error fetching risk analysis:', error);
+    }
+  };
+
+  // WebSocket setup for real-time data
+  useEffect(() => {
+    if (activeTab === 'coldchain') {
+      const websocket = new WebSocket('ws://localhost:8000/ws');
+      
+      websocket.onopen = () => {
+        console.log('WebSocket connected');
+      };
+
+      websocket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'sensor_data') {
+          setSensorData(prev => {
+            const newData = [...prev, data.data];
+            return newData.slice(-20);
+          });
+        }
+      };
+
+      websocket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+
+      setWs(websocket);
+
+      return () => {
+        websocket.close();
+      };
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'clinical-trials') {
+      fetchBatches();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'coldchain') {
+      fetchRiskAnalysis(selectedBatch);
+    }
+  }, [selectedBatch, activeTab]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -92,6 +223,14 @@ const Dashboard = ({ onLogout }) => {
       case 'critical': return 'critical';
       default: return 'unknown';
     }
+  };
+
+  const getStatusColorColdChain = (status) => {
+    return status === 'SAFE' ? 'text-green-600' : 'text-red-600';
+  };
+
+  const getStatusBgColorColdChain = (status) => {
+    return status === 'SAFE' ? 'bg-green-100' : 'bg-red-100';
   };
 
   return (
@@ -426,48 +565,308 @@ const Dashboard = ({ onLogout }) => {
               </div>
             )}
 
+            {activeTab === 'clinical-trials' && (
+              <div className="space-y-8">
+                {/* Form Section */}
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Log New Drug Batch</h2>
+                  <form onSubmit={handleSubmitBatch} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Drug Name
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.drugName}
+                          onChange={(e) => setFormData({...formData, drugName: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter drug name"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Expiry Date
+                        </label>
+                        <input
+                          type="date"
+                          required
+                          value={formData.expiry}
+                          onChange={(e) => setFormData({...formData, expiry: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Sender
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.sender}
+                          onChange={(e) => setFormData({...formData, sender: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter sender name"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Receiver
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.receiver}
+                          onChange={(e) => setFormData({...formData, receiver: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter receiver name"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                    >
+                      {loading ? 'Creating Batch...' : 'Create Batch'}
+                    </button>
+                  </form>
+                </div>
+
+                {/* Blockchain Ledger Section */}
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Blockchain Ledger - Approved Shipments</h2>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Batch ID
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Drug Name
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Expiry
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Sender
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Receiver
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {batches.map((batch) => (
+                          <tr key={batch.batchID} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                              {batch.batchID}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {batch.drugName}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {new Date(batch.expiry).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {batch.sender}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {batch.receiver}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                batch.status === 'approved' 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : 'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {batch.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {batch.status === 'pending' && (
+                                <button
+                                  onClick={() => handleApproveBatch(batch.batchID)}
+                                  className="bg-green-600 text-white px-3 py-1 rounded-md text-xs hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                >
+                                  Approve (Regulator)
+                                </button>
+                              )}
+                              {batch.status === 'approved' && batch.approved_by && (
+                                <span className="text-xs text-gray-500">
+                                  Approved by {batch.approved_by}
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {batches.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        No batches found. Create a new batch to see it here.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {activeTab === 'coldchain' && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900">Cold Chain Monitoring</h2>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Temperature Monitoring</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={analyticsData}>
+              <div className="space-y-8">
+                {/* Batch Selection */}
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Cold-Chain Monitoring</h2>
+                  <div className="flex space-x-4">
+                    {batchIds.map((batchId) => (
+                      <button
+                        key={batchId}
+                        onClick={() => setSelectedBatch(batchId)}
+                        className={`px-4 py-2 rounded-md font-medium ${
+                          selectedBatch === batchId
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                      >
+                        {batchId}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Live Temperature Graph */}
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Live Temperature Data - {selectedBatch}</h3>
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={sensorData.filter(d => d.batchID === selectedBatch)}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <Tooltip />
+                        <XAxis 
+                          dataKey="timestamp" 
+                          tickFormatter={(value) => new Date(value).toLocaleTimeString()}
+                        />
+                        <YAxis 
+                          domain={[0, 10]}
+                          label={{ value: 'Temperature (°C)', angle: -90, position: 'insideLeft' }}
+                        />
+                        <Tooltip 
+                          labelFormatter={(value) => new Date(value).toLocaleString()}
+                          formatter={(value, name) => [value, name === 'temperature' ? 'Temperature (°C)' : 'Humidity (%)']}
+                        />
                         <Legend />
-                        <Line type="monotone" dataKey="items" stroke="#3B82F6" strokeWidth={2} name="Temperature (°C)" />
+                        <Line 
+                          type="monotone" 
+                          dataKey="temperature" 
+                          stroke="#3B82F6" 
+                          strokeWidth={2}
+                          dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="humidity" 
+                          stroke="#10B981" 
+                          strokeWidth={2}
+                          dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
+                </div>
 
-                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Status</h3>
+                {/* AI Risk Analysis */}
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">AI Risk Analysis - {selectedBatch}</h3>
+                  
+                  {riskAnalysis.status ? (
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">Vaccine Storage</p>
-                          <p className="text-sm text-gray-600">Temperature: 4.2°C</p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <CheckCircle className="w-5 h-5 text-green-600" />
-                          <span className="text-sm font-medium text-green-600">SAFE</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">Insulin Storage</p>
-                          <p className="text-sm text-gray-600">Temperature: 7.8°C</p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                          <span className="text-sm font-medium text-yellow-600">WARNING</span>
+                      {/* Status Indicator */}
+                      <div className="flex items-center space-x-4">
+                        <span className="text-lg font-medium text-gray-700">Status:</span>
+                        <div className={`px-4 py-2 rounded-full ${getStatusBgColorColdChain(riskAnalysis.status)}`}>
+                          <span className={`font-bold text-lg ${getStatusColorColdChain(riskAnalysis.status)}`}>
+                            {riskAnalysis.status}
+                          </span>
                         </div>
                       </div>
+
+                      {/* Risk Score */}
+                      <div className="flex items-center space-x-4">
+                        <span className="text-lg font-medium text-gray-700">Risk Score:</span>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-32 bg-gray-200 rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full ${
+                                riskAnalysis.risk_score < 0.3 ? 'bg-green-500' : 
+                                riskAnalysis.risk_score < 0.7 ? 'bg-yellow-500' : 'bg-red-500'
+                              }`}
+                              style={{ width: `${riskAnalysis.risk_score * 100}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-sm font-medium text-gray-600">
+                            {(riskAnalysis.risk_score * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Recommendations */}
+                      {riskAnalysis.recommendations && riskAnalysis.recommendations.length > 0 && (
+                        <div>
+                          <span className="text-lg font-medium text-gray-700 block mb-2">Recommendations:</span>
+                          <ul className="list-disc list-inside space-y-1">
+                            {riskAnalysis.recommendations.map((rec, index) => (
+                              <li key={index} className="text-gray-600">{rec}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      Loading risk analysis...
+                    </div>
+                  )}
+                </div>
+
+                {/* Real-time Data Feed */}
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Real-time Sensor Data Feed</h3>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {sensorData
+                      .filter(d => d.batchID === selectedBatch)
+                      .slice(-10)
+                      .reverse()
+                      .map((data, index) => (
+                        <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
+                          <div className="flex space-x-4">
+                            <span className="text-sm text-gray-600">
+                              {new Date(data.timestamp).toLocaleTimeString()}
+                            </span>
+                            <span className="text-sm font-medium">
+                              Temp: {data.temperature}°C
+                            </span>
+                            <span className="text-sm font-medium">
+                              Humidity: {data.humidity}%
+                            </span>
+                          </div>
+                          <div className={`px-2 py-1 rounded text-xs font-medium ${
+                            data.temperature >= 2 && data.temperature <= 8 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {data.temperature >= 2 && data.temperature <= 8 ? 'SAFE' : 'WARNING'}
+                          </div>
+                        </div>
+                      ))}
                   </div>
                 </div>
               </div>
