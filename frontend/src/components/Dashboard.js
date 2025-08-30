@@ -193,36 +193,7 @@ const Dashboard = ({ onLogout }) => {
     }
   };
 
-  // const fetchSensorData = async (batchId) => {
-    try {
-      const response = await fetch(`http://localhost:8000/coldchain/data/${batchId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setSensorData(data.data || []);
-      } else {
-        // Fallback data if API doesn't return data
-        const fallbackData = [
-          { batchID: batchId, temperature: 4.2, humidity: 45.3, timestamp: new Date(Date.now() - 20000).toISOString() },
-          { batchID: batchId, temperature: 4.5, humidity: 46.1, timestamp: new Date(Date.now() - 15000).toISOString() },
-          { batchID: batchId, temperature: 4.1, humidity: 44.8, timestamp: new Date(Date.now() - 10000).toISOString() },
-          { batchID: batchId, temperature: 4.3, humidity: 45.7, timestamp: new Date(Date.now() - 5000).toISOString() },
-          { batchID: batchId, temperature: 4.0, humidity: 45.2, timestamp: new Date().toISOString() },
-        ];
-        setSensorData(fallbackData);
-      }
-    } catch (error) {
-      console.error('Error fetching sensor data:', error);
-      // Fallback data on error
-      const fallbackData = [
-        { batchID: batchId, temperature: 4.2, humidity: 45.3, timestamp: new Date(Date.now() - 20000).toISOString() },
-        { batchID: batchId, temperature: 4.5, humidity: 46.1, timestamp: new Date(Date.now() - 15000).toISOString() },
-        { batchID: batchId, temperature: 4.1, humidity: 44.8, timestamp: new Date(Date.now() - 10000).toISOString() },
-        { batchID: batchId, temperature: 4.3, humidity: 45.7, timestamp: new Date(Date.now() - 5000).toISOString() },
-        { batchID: batchId, temperature: 4.0, humidity: 45.2, timestamp: new Date().toISOString() },
-      ];
-      setSensorData(fallbackData);
-    }
-  };
+
 
   // WebSocket setup for real-time data
   useEffect(() => {
