@@ -1418,9 +1418,194 @@ const Dashboard = ({ onLogout }) => {
 
             {activeTab === 'settings' && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <p className="text-gray-600">Settings panel coming soon...</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
+                    <p className="text-gray-600">Manage system-wide configurations and security</p>
+                  </div>
+                  <div className="flex space-x-3">
+                    <button className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                      Reset to Default
+                    </button>
+                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                      Save Changes
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Settings Navigation */}
+                  <div className="lg:col-span-1">
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                      <nav className="space-y-2">
+                        <button className="w-full text-left px-3 py-2 text-blue-600 bg-blue-50 rounded-md font-medium">
+                          General
+                        </button>
+                        <button className="w-full text-left px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors">
+                          Notifications
+                        </button>
+                        <button className="w-full text-left px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors">
+                          Appearance
+                        </button>
+                        <button className="w-full text-left px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors">
+                          Security
+                        </button>
+                        <button className="w-full text-left px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors">
+                          Role Settings
+                        </button>
+                      </nav>
+                    </div>
+                  </div>
+
+                  {/* Settings Content */}
+                  <div className="lg:col-span-2">
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-6">General Settings</h3>
+                      
+                      <div className="space-y-6">
+                        {/* Account Information */}
+                        <div>
+                          <h4 className="text-md font-medium text-gray-900 mb-4">Account Information</h4>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Email Address
+                              </label>
+                              <input
+                                type="email"
+                                defaultValue="user@medchain.com"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Language
+                              </label>
+                              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option>English</option>
+                                <option>Spanish</option>
+                                <option>French</option>
+                                <option>German</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Timezone
+                              </label>
+                              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option>UTC</option>
+                                <option>EST (UTC-5)</option>
+                                <option>PST (UTC-8)</option>
+                                <option>GMT (UTC+0)</option>
+                                <option>CET (UTC+1)</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Device Settings */}
+                        <div>
+                          <h4 className="text-md font-medium text-gray-900 mb-4">Device Settings</h4>
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h5 className="text-sm font-medium text-gray-900">Desktop Notifications</h5>
+                                <p className="text-sm text-gray-600">Receive notifications on desktop</p>
+                              </div>
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" defaultChecked className="sr-only peer" />
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                              </label>
+                            </div>
+                            
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h5 className="text-sm font-medium text-gray-900">Mobile Notifications</h5>
+                                <p className="text-sm text-gray-600">Receive notifications on mobile</p>
+                              </div>
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" defaultChecked className="sr-only peer" />
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Security Settings */}
+                        <div>
+                          <h4 className="text-md font-medium text-gray-900 mb-4">Security</h4>
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h5 className="text-sm font-medium text-gray-900">Auto-logout</h5>
+                                <p className="text-sm text-gray-600">Automatically logout after inactivity</p>
+                              </div>
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" className="sr-only peer" />
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                              </label>
+                            </div>
+                            
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Auto-logout Timeout (minutes)
+                              </label>
+                              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option>15</option>
+                                <option>30</option>
+                                <option>60</option>
+                                <option>120</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Role Settings */}
+                        <div>
+                          <h4 className="text-md font-medium text-gray-900 mb-4">Role Settings</h4>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Current Role
+                              </label>
+                              <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-md">
+                                <span className="text-sm text-gray-900 font-medium">Administrator</span>
+                                <span className="ml-2 text-xs text-gray-500">Full system access</span>
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Permissions
+                              </label>
+                              <div className="space-y-2">
+                                <div className="flex items-center">
+                                  <input type="checkbox" defaultChecked className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                                  <label className="ml-2 text-sm text-gray-700">View Inventory</label>
+                                </div>
+                                <div className="flex items-center">
+                                  <input type="checkbox" defaultChecked className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                                  <label className="ml-2 text-sm text-gray-700">Edit Inventory</label>
+                                </div>
+                                <div className="flex items-center">
+                                  <input type="checkbox" defaultChecked className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                                  <label className="ml-2 text-sm text-gray-700">Approve Batches</label>
+                                </div>
+                                <div className="flex items-center">
+                                  <input type="checkbox" defaultChecked className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                                  <label className="ml-2 text-sm text-gray-700">View Analytics</label>
+                                </div>
+                                <div className="flex items-center">
+                                  <input type="checkbox" defaultChecked className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                                  <label className="ml-2 text-sm text-gray-700">Manage Users</label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
