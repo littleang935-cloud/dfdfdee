@@ -43,7 +43,6 @@ const Dashboard = ({ onLogout }) => {
     receiver: ''
   });
   const [loading, setLoading] = useState(false);
-  const [ws, setWs] = useState(null);
   const [graphLoaded, setGraphLoaded] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -195,36 +194,42 @@ const Dashboard = ({ onLogout }) => {
 
 
 
-  // WebSocket setup for real-time data
+  // Real-time data generation for live graph
   useEffect(() => {
     if (activeTab === 'coldchain') {
-      const websocket = new WebSocket('ws://localhost:8000/ws');
-      
-      websocket.onopen = () => {
-        console.log('WebSocket connected');
-      };
-
-      websocket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'sensor_data') {
-          setSensorData(prev => {
-            const newData = [...prev, data.data];
-            return newData.slice(-20);
+      // Generate initial data if empty
+      if (sensorData.length === 0) {
+        const initialData = [];
+        for (let i = 0; i < 20; i++) {
+          const time = new Date(Date.now() - (20 - i) * 5000);
+          initialData.push({
+            batchID: selectedBatch,
+            temperature: 4 + Math.random() * 2 - 1, // 3-5°C range
+            humidity: 45 + Math.random() * 10 - 5, // 40-50% range
+            timestamp: time.toISOString()
           });
         }
-      };
+        setSensorData(initialData);
+      }
 
-      websocket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
+      // Set up real-time data generation
+      const interval = setInterval(() => {
+        const newDataPoint = {
+          batchID: selectedBatch,
+          temperature: 4 + Math.random() * 2 - 1, // 3-5°C range
+          humidity: 45 + Math.random() * 10 - 5, // 40-50% range
+          timestamp: new Date().toISOString()
+        };
 
-      setWs(websocket);
+        setSensorData(prev => {
+          const updated = [...prev, newDataPoint];
+          return updated.slice(-30); // Keep last 30 data points
+        });
+      }, 2000); // Update every 2 seconds
 
-      return () => {
-        websocket.close();
-      };
+      return () => clearInterval(interval);
     }
-  }, [activeTab]);
+  }, [activeTab, selectedBatch]);
 
   useEffect(() => {
     if (activeTab === 'clinical-trials') {
@@ -234,16 +239,6 @@ const Dashboard = ({ onLogout }) => {
 
   useEffect(() => {
     if (activeTab === 'coldchain') {
-      // Fetch initial data from API
-      fetch(`http://localhost:8000/coldchain/data/${selectedBatch}`)
-        .then(response => response.json())
-        .then(data => {
-          setSensorData(data.data || []);
-        })
-        .catch(error => {
-          console.error('Error fetching initial sensor data:', error);
-        });
-      
       fetchRiskAnalysis(selectedBatch);
       // Simulate graph loading animation
       setGraphLoaded(false);
