@@ -187,39 +187,93 @@ const Dashboard = ({ onLogout }) => {
         const analysis = await response.json();
         setRiskAnalysis(analysis);
       } else {
-        // Dynamic risk analysis based on batch
-        const riskProfiles = {
-          'BATCH001': {
-            status: 'SAFE',
-            risk_score: 0.12,
-            recommendations: [
-              'Temperature stable at 4.2°C',
-              'Humidity levels optimal',
-              'Continue standard monitoring'
-            ]
-          },
-          'BATCH002': {
-            status: 'SAFE',
-            risk_score: 0.08,
-            recommendations: [
-              'Excellent temperature control at 3.8°C',
-              'Humidity slightly elevated but acceptable',
-              'Maintain current settings'
-            ]
-          },
-          'BATCH003': {
-            status: 'WARNING',
-            risk_score: 0.72,
-            recommendations: [
-              'Temperature approaching upper limit (5.8°C)',
-              'Consider adjusting cooling system',
-              'Increase monitoring frequency',
-              'Prepare contingency plan if trend continues'
-            ]
+        // Calculate risk based on current sensor data
+        const currentData = sensorData[sensorData.length - 1];
+        let riskScore = 0;
+        let status = 'SAFE';
+        let recommendations = [];
+
+        if (currentData) {
+          const temp = currentData.temperature;
+          const humidity = currentData.humidity;
+
+          // Calculate risk based on temperature
+          if (temp < 2 || temp > 8) {
+            riskScore = 0.9; // High risk
+            status = 'CRITICAL';
+            recommendations = [
+              'Temperature outside safe range!',
+              'Immediate action required',
+              'Check cooling system',
+              'Contact maintenance team'
+            ];
+          } else if (temp > 6 || temp < 3) {
+            riskScore = 0.6; // Medium risk
+            status = 'WARNING';
+            recommendations = [
+              'Temperature approaching limits',
+              'Monitor closely',
+              'Consider adjusting settings',
+              'Prepare contingency plan'
+            ];
+          } else {
+            riskScore = 0.1; // Low risk
+            status = 'SAFE';
+            recommendations = [
+              'Temperature within optimal range',
+              'Continue standard monitoring',
+              'No immediate action required'
+            ];
           }
-        };
-        
-        setRiskAnalysis(riskProfiles[batchId] || riskProfiles['BATCH001']);
+
+          // Adjust for humidity if needed
+          if (humidity < 30 || humidity > 70) {
+            riskScore = Math.min(riskScore + 0.2, 1.0);
+            recommendations.push('Humidity levels need attention');
+          }
+        } else {
+          // Fallback to batch-specific profiles
+          const riskProfiles = {
+            'BATCH001': {
+              status: 'SAFE',
+              risk_score: 0.12,
+              recommendations: [
+                'Temperature stable at 4.2°C',
+                'Humidity levels optimal',
+                'Continue standard monitoring'
+              ]
+            },
+            'BATCH002': {
+              status: 'SAFE',
+              risk_score: 0.08,
+              recommendations: [
+                'Excellent temperature control at 3.8°C',
+                'Humidity slightly elevated but acceptable',
+                'Maintain current settings'
+              ]
+            },
+            'BATCH003': {
+              status: 'WARNING',
+              risk_score: 0.72,
+              recommendations: [
+                'Temperature approaching upper limit (5.8°C)',
+                'Consider adjusting cooling system',
+                'Increase monitoring frequency',
+                'Prepare contingency plan if trend continues'
+              ]
+            }
+          };
+          
+          const profile = riskProfiles[batchId] || riskProfiles['BATCH001'];
+          setRiskAnalysis(profile);
+          return;
+        }
+
+        setRiskAnalysis({
+          status,
+          risk_score: riskScore,
+          recommendations
+        });
       }
     } catch (error) {
       console.error('Error fetching risk analysis:', error);
@@ -315,12 +369,30 @@ const Dashboard = ({ onLogout }) => {
 
   useEffect(() => {
     if (activeTab === 'coldchain') {
-      fetchRiskAnalysis(selectedBatch);
       // Simulate graph loading animation
       setGraphLoaded(false);
       setTimeout(() => setGraphLoaded(true), 1000);
     }
+  }, [activeTab]);
+
+  // Separate useEffect for risk analysis to ensure it updates when batch changes
+  useEffect(() => {
+    if (activeTab === 'coldchain') {
+      fetchRiskAnalysis(selectedBatch);
+    }
   }, [selectedBatch, activeTab]);
+
+  // Update risk analysis when sensor data changes
+  useEffect(() => {
+    if (activeTab === 'coldchain' && sensorData.length > 0) {
+      // Update risk analysis every 10 seconds based on current data
+      const interval = setInterval(() => {
+        fetchRiskAnalysis(selectedBatch);
+      }, 10000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [activeTab, sensorData, selectedBatch]);
 
   // Close notifications when clicking outside
   useEffect(() => {
