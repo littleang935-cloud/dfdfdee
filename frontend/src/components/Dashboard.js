@@ -651,84 +651,87 @@ const Dashboard = ({ onLogout }) => {
                   </div>
                 </div>
 
-                {/* Recent Activity */}
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs text-green-600 font-medium">Contract Active</span>
+                {/* Recent Activity and Clinical Trials - Side by Side */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Recent Activity */}
+                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs text-green-600 font-medium">Contract Active</span>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      {blockchainActivity.slice(0, 5).map((activity) => (
+                        <div key={activity.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                          <div className="p-2 bg-blue-100 rounded-lg">
+                            <Shield className="w-4 h-4 text-blue-600" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900">{activity.item}</p>
+                            <p className="text-xs text-gray-600">{activity.action}</p>
+                            <p className="text-xs text-purple-600 font-mono">Contract: {activity.contract.slice(0, 8)}...</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs text-gray-500">{activity.time}</p>
+                            <p className="text-xs text-blue-600 font-mono">{activity.hash}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    {blockchainActivity.slice(0, 5).map((activity) => (
-                      <div key={activity.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                          <Shield className="w-4 h-4 text-blue-600" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">{activity.item}</p>
-                          <p className="text-xs text-gray-600">{activity.action}</p>
-                          <p className="text-xs text-purple-600 font-mono">Contract: {activity.contract.slice(0, 8)}...</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xs text-gray-500">{activity.time}</p>
-                          <p className="text-xs text-blue-600 font-mono">{activity.hash}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Clinical Trials Overview */}
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Clinical Trials Status</h3>
-                    <span className="text-sm text-gray-500">{clinicalTrialsOverview.length} Active Trials</span>
-                  </div>
-                  <div className="space-y-4">
-                    {clinicalTrialsOverview.map((trial) => (
-                      <div key={trial.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center space-x-4">
-                          <div className={`p-2 rounded-full ${
-                            trial.status === 'approved' ? 'bg-green-100' : 'bg-yellow-100'
-                          }`}>
-                            <TestTube className={`w-4 h-4 ${
-                              trial.status === 'approved' ? 'text-green-600' : 'text-yellow-600'
-                            }`} />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">{trial.drugName}</p>
-                            <p className="text-xs text-gray-500">{trial.batchID}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <div className="text-right">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-20 bg-gray-200 rounded-full h-2">
-                                <div 
-                                  className={`h-2 rounded-full ${
-                                    trial.status === 'approved' ? 'bg-green-500' : 'bg-yellow-500'
-                                  }`}
-                                  style={{ width: `${trial.progress}%` }}
-                                ></div>
-                              </div>
-                              <span className="text-xs text-gray-600">{trial.progress}%</span>
+                  {/* Clinical Trials Overview */}
+                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900">Clinical Trials Status</h3>
+                      <span className="text-sm text-gray-500">{clinicalTrialsOverview.length} Active Trials</span>
+                    </div>
+                    <div className="space-y-4">
+                      {clinicalTrialsOverview.map((trial) => (
+                        <div key={trial.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center space-x-4">
+                            <div className={`p-2 rounded-full ${
+                              trial.status === 'approved' ? 'bg-green-100' : 'bg-yellow-100'
+                            }`}>
+                              <TestTube className={`w-4 h-4 ${
+                                trial.status === 'approved' ? 'text-green-600' : 'text-yellow-600'
+                              }`} />
                             </div>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {trial.status === 'approved' ? `Approved by ${trial.approvedBy}` : 'Pending approval'}
-                            </p>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{trial.drugName}</p>
+                              <p className="text-xs text-gray-500">{trial.batchID}</p>
+                            </div>
                           </div>
-                          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                            trial.status === 'approved' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {trial.status}
-                          </span>
+                          <div className="flex items-center space-x-4">
+                            <div className="text-right">
+                              <div className="flex items-center space-x-2">
+                                <div className="w-20 bg-gray-200 rounded-full h-2">
+                                  <div 
+                                    className={`h-2 rounded-full ${
+                                      trial.status === 'approved' ? 'bg-green-500' : 'bg-yellow-500'
+                                    }`}
+                                    style={{ width: `${trial.progress}%` }}
+                                  ></div>
+                                </div>
+                                <span className="text-xs text-gray-600">{trial.progress}%</span>
+                              </div>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {trial.status === 'approved' ? `Approved by ${trial.approvedBy}` : 'Pending approval'}
+                              </p>
+                            </div>
+                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                              trial.status === 'approved' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {trial.status}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
 
