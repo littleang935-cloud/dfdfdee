@@ -100,64 +100,133 @@ const LandingPage = ({ onLogin }) => {
         : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900'
     } relative overflow-hidden`}>
       
-      {/* Modern Fluid Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Subtle gradient orbs */}
-        <motion.div
-          className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl ${
-            isDarkMode 
-              ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10' 
-              : 'bg-gradient-to-r from-blue-200/30 to-purple-200/30'
-          }`}
-          animate={{
-            x: [0, 50, 0],
-            y: [0, -30, 0],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className={`absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl ${
-            isDarkMode 
-              ? 'bg-gradient-to-r from-purple-500/10 to-pink-500/10' 
-              : 'bg-gradient-to-r from-purple-200/30 to-pink-200/30'
-          }`}
-          animate={{
-            x: [0, -50, 0],
-            y: [0, 30, 0],
-          }}
-          transition={{
-            duration: 35,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        
-        {/* Subtle grid pattern */}
-        <div className={`absolute inset-0 opacity-5 ${
-          isDarkMode ? 'bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)]' 
-          : 'bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.1)_1px,transparent_0)]'
-        } bg-[length:20px_20px]`} />
-      </div>
+                   {/* Dynamic Moving Background */}
+             <div className="absolute inset-0 overflow-hidden">
+               {/* Floating particles */}
+               {[...Array(20)].map((_, i) => (
+                 <motion.div
+                   key={i}
+                   className={`absolute w-2 h-2 rounded-full ${
+                     isDarkMode ? 'bg-white/20' : 'bg-blue-500/20'
+                   }`}
+                   style={{
+                     left: `${Math.random() * 100}%`,
+                     top: `${Math.random() * 100}%`,
+                   }}
+                   animate={{
+                     y: [0, -100, 0],
+                     opacity: [0, 1, 0],
+                   }}
+                   transition={{
+                     duration: 8 + Math.random() * 4,
+                     repeat: Infinity,
+                     delay: Math.random() * 5,
+                     ease: "easeInOut",
+                   }}
+                 />
+               ))}
 
-      {/* Theme Toggle */}
-      <motion.button
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        onClick={toggleTheme}
-        className={`fixed top-6 right-6 z-50 p-3 rounded-full backdrop-blur-sm border transition-all duration-300 ${
-          isDarkMode 
-            ? 'bg-white/10 border-white/20 text-white hover:bg-white/20' 
-            : 'bg-black/10 border-black/20 text-gray-900 hover:bg-black/20'
-        }`}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-      </motion.button>
+               {/* Animated gradient orbs */}
+               <motion.div
+                 className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl ${
+                   isDarkMode
+                     ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10'
+                     : 'bg-gradient-to-r from-blue-200/30 to-purple-200/30'
+                 }`}
+                 animate={{
+                   x: [0, 50, 0],
+                   y: [0, -30, 0],
+                   scale: [1, 1.1, 1],
+                 }}
+                 transition={{
+                   duration: 25,
+                   repeat: Infinity,
+                   ease: "easeInOut",
+                 }}
+               />
+               <motion.div
+                 className={`absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl ${
+                   isDarkMode
+                     ? 'bg-gradient-to-r from-purple-500/10 to-pink-500/10'
+                     : 'bg-gradient-to-r from-purple-200/30 to-pink-200/30'
+                 }`}
+                 animate={{
+                   x: [0, -50, 0],
+                   y: [0, 30, 0],
+                   scale: [1, 1.2, 1],
+                 }}
+                 transition={{
+                   duration: 30,
+                   repeat: Infinity,
+                   ease: "easeInOut",
+                 }}
+               />
+
+               {/* Additional floating elements */}
+               <motion.div
+                 className={`absolute top-1/3 right-1/3 w-64 h-64 rounded-full blur-2xl ${
+                   isDarkMode
+                     ? 'bg-gradient-to-r from-green-500/5 to-blue-500/5'
+                     : 'bg-gradient-to-r from-green-200/20 to-blue-200/20'
+                 }`}
+                 animate={{
+                   x: [0, 30, 0],
+                   y: [0, -20, 0],
+                   rotate: [0, 180, 360],
+                 }}
+                 transition={{
+                   duration: 40,
+                   repeat: Infinity,
+                   ease: "easeInOut",
+                 }}
+               />
+
+               {/* Moving lines */}
+               {[...Array(5)].map((_, i) => (
+                 <motion.div
+                   key={`line-${i}`}
+                   className={`absolute h-px w-32 ${
+                     isDarkMode ? 'bg-white/10' : 'bg-blue-500/10'
+                   }`}
+                   style={{
+                     left: `${Math.random() * 100}%`,
+                     top: `${Math.random() * 100}%`,
+                   }}
+                   animate={{
+                     x: [0, 200, 0],
+                     opacity: [0, 1, 0],
+                   }}
+                   transition={{
+                     duration: 15 + Math.random() * 10,
+                     repeat: Infinity,
+                     delay: Math.random() * 10,
+                     ease: "easeInOut",
+                   }}
+                 />
+               ))}
+
+               {/* Subtle grid pattern */}
+               <div className={`absolute inset-0 opacity-5 ${
+                 isDarkMode ? 'bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)]'
+                 : 'bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.1)_1px,transparent_0)]'
+               } bg-[length:20px_20px]`} />
+             </div>
+
+                   {/* Theme Toggle - Bottom Right */}
+             <motion.button
+               initial={{ opacity: 0, scale: 0 }}
+               animate={{ opacity: 1, scale: 1 }}
+               onClick={toggleTheme}
+               className={`fixed bottom-6 right-6 z-50 p-3 rounded-full backdrop-blur-sm border transition-all duration-300 ${
+                 isDarkMode
+                   ? 'bg-white/10 border-white/20 text-white hover:bg-white/20'
+                   : 'bg-black/10 border-black/20 text-gray-900 hover:bg-black/20'
+               }`}
+               whileHover={{ scale: 1.1 }}
+               whileTap={{ scale: 0.9 }}
+             >
+               {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+             </motion.button>
 
       {/* Navigation */}
       <nav className="relative z-10 flex justify-between items-center p-6">
