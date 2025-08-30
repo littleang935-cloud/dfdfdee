@@ -1,0 +1,7 @@
+id,temp_c,humidity,target
+A1,4.5,70,Safe
+A2,9.2,65,Spoiled
+A3,2.0,75,Safe
+A4,12.5,60,Spoiled
+A5,3.5,68,Safe
+A6,11.0,60,Spoiled

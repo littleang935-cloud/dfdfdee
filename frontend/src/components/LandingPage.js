@@ -31,10 +31,10 @@ const LandingPage = ({ onLogin }) => {
   };
 
   const stats = [
-    { label: "Items Tracked", value: "1,247", icon: Database },
-    { label: "Uptime", value: "99.9%", icon: Activity },
+    { label: "Items Tracked", value: "2,847", icon: Database },
+    { label: "Uptime", value: "99.7%", icon: Activity },
     { label: "Support", value: "24/7", icon: Users },
-    { label: "Healthcare Partners", value: "50+", icon: Globe },
+    { label: "Healthcare Partners", value: "73+", icon: Globe },
   ];
 
   const features = [
@@ -276,13 +276,13 @@ const LandingPage = ({ onLogin }) => {
           <h2 className={`text-2xl md:text-3xl font-semibold mb-8 ${
             isDarkMode ? 'text-white/80' : 'text-gray-700'
           }`}>
-            Blockchain-Powered Medical Inventory
+            Blockchain-Powered Medical Care
           </h2>
           <p className={`text-xl max-w-3xl mx-auto mb-12 ${
             isDarkMode ? 'text-white/70' : 'text-gray-600'
           }`}>
-            Secure, transparent, and automated inventory management for healthcare facilities. 
-            Every transaction recorded on the blockchain for complete audit trails.
+            Revolutionary healthcare management system with blockchain-powered transparency and AI-driven insights. 
+            Every medical transaction and patient care activity is securely recorded and monitored in real-time.
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
