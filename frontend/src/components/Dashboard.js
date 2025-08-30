@@ -20,7 +20,7 @@ import {
   Activity,
   Shield,
   Bell,
-  Flask,
+  TestTube,
   Zap
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
@@ -86,7 +86,7 @@ const Dashboard = ({ onLogout }) => {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'inventory', label: 'Inventory', icon: Package },
-    { id: 'clinical-trials', label: 'Clinical Trials', icon: Flask },
+    { id: 'clinical-trials', label: 'Clinical Trials', icon: TestTube },
     { id: 'coldchain', label: 'Cold Chain', icon: Thermometer },
     { id: 'analytics', label: 'Analytics', icon: TrendingUp },
     { id: 'alerts', label: 'Alerts', icon: Bell },
