@@ -234,7 +234,6 @@ const Dashboard = ({ onLogout }) => {
       }
 
       // Fallback: Manual risk calculation based on temperature thresholds
-      const currentData = sensorData[sensorData.length - 1];
       let riskScore = 0;
       let status = 'SAFE';
       let recommendations = [];
