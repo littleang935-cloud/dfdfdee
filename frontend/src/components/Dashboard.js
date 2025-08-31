@@ -489,9 +489,147 @@ const Dashboard = ({ onLogout }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Large blurred balls moving slowly */}
+        <motion.div
+          className="absolute w-96 h-96 rounded-full blur-xl bg-gradient-to-r from-blue-400/40 to-purple-400/40"
+          style={{
+            top: '10%',
+            left: '10%',
+          }}
+          animate={{
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        
+        <motion.div
+          className="absolute w-80 h-80 rounded-full blur-xl bg-gradient-to-r from-purple-400/40 to-pink-400/40"
+          style={{
+            top: '60%',
+            right: '15%',
+          }}
+          animate={{
+            x: [0, -80, 0],
+            y: [0, 40, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 35,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        
+        <motion.div
+          className="absolute w-72 h-72 rounded-full blur-xl bg-gradient-to-r from-green-400/35 to-blue-400/35"
+          style={{
+            top: '30%',
+            right: '30%',
+          }}
+          animate={{
+            x: [0, 60, 0],
+            y: [0, -30, 0],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 40,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        {/* More moving balls for richer background */}
+        <motion.div
+          className="absolute w-64 h-64 rounded-full blur-lg bg-gradient-to-r from-indigo-400/35 to-cyan-400/35"
+          style={{
+            top: '70%',
+            left: '5%',
+          }}
+          animate={{
+            x: [0, 120, 0],
+            y: [0, -40, 0],
+            scale: [1, 1.15, 1],
+          }}
+          transition={{
+            duration: 45,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        <motion.div
+          className="absolute w-56 h-56 rounded-full blur-lg bg-gradient-to-r from-pink-400/35 to-orange-400/35"
+          style={{
+            top: '20%',
+            left: '60%',
+          }}
+          animate={{
+            x: [0, -100, 0],
+            y: [0, 60, 0],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 50,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        <motion.div
+          className="absolute w-48 h-48 rounded-full blur-lg bg-gradient-to-r from-emerald-400/35 to-teal-400/35"
+          style={{
+            top: '80%',
+            right: '5%',
+          }}
+          animate={{
+            x: [0, 80, 0],
+            y: [0, -60, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 55,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        {/* Subtle floating particles */}
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 rounded-full bg-blue-500/20"
+            style={{
+              left: `${5 + Math.random() * 90}%`,
+              top: `${5 + Math.random() * 90}%`,
+            }}
+            animate={{
+              y: [0, -40, 0],
+              opacity: [0.3, 0.8, 0.3],
+            }}
+            transition={{
+              duration: 25 + Math.random() * 15,
+              repeat: Infinity,
+              delay: Math.random() * 15,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 opacity-3 bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.05)_1px,transparent_0)] bg-[length:30px_30px]" />
+      </div>
+
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
@@ -569,9 +707,9 @@ const Dashboard = ({ onLogout }) => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         {/* Tab Navigation */}
-        <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm mb-8 overflow-x-auto">
+        <div className="flex space-x-1 bg-white/80 backdrop-blur-md rounded-lg p-1 shadow-lg mb-8 overflow-x-auto border border-white/20">
           {tabs.map((tab) => (
             <button
               key={tab.id}
