@@ -282,17 +282,17 @@ const LandingPage = ({ onLogin }) => {
               isDarkMode ? 'from-purple-400 to-pink-400' : 'from-purple-600 to-pink-600'
             }`}>
               Health{' '}
-              <span className="inline-block w-32 h-16 relative overflow-hidden">
+              <span className="inline-block w-32 relative overflow-hidden">
                 <motion.span
                   key={rollingText}
-                  initial={{ y: 50, opacity: 0 }}
+                  initial={{ y: 30, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -50, opacity: 0 }}
+                  exit={{ y: -30, opacity: 0 }}
                   transition={{ 
                     duration: 0.6,
                     ease: "easeInOut"
                   }}
-                  className="absolute top-0 left-0 w-full text-center"
+                  className="absolute top-0 left-0 w-full"
                 >
                   {rollingWords[rollingText]}
                 </motion.span>
