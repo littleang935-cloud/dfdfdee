@@ -436,7 +436,7 @@ const LandingPage = ({ onLogin }) => {
 
 
       {/* Hero Section */}
-      <section id="home" className="relative z-10 text-center px-6 py-20">
+      <section id="home" className="relative z-10 text-center px-6 py-20 pt-32">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
