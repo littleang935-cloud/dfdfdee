@@ -46,6 +46,10 @@ A comprehensive blockchain-powered healthcare inventory management system with i
 - **Batch-specific Monitoring**: Individual batch tracking
 - **Status Indicators**: SAFE, WARNING, CRITICAL states
 - **ML Predictions**: Real-time Safe/Spoiled classification
+- **ML Model Training**: Custom model trained on batch data (temperature, humidity)
+- **Model Persistence**: Saved as `model.pkl` and `scaler.pkl`
+- **Prediction API**: POST `/coldchain/predict` for real-time predictions
+- **Model Testing**: GET `/coldchain/test` for model validation
 
 ### 🔔 Active Alerts System
 - **Low Stock Alerts**: Automated notifications
