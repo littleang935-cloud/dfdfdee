@@ -202,14 +202,14 @@ const Dashboard = ({ onLogout }) => {
         if (mlResponse.ok) {
           const mlResult = await mlResponse.json();
           
-          // Convert ML prediction to risk analysis format
-          const riskScore = mlResult.risk === 'Spoiled' ? 0.9 : 0.1;
+          // Use ML model prediction directly
+          const riskScore = mlResult.risk_score / 100; // Convert percentage to decimal
           const status = mlResult.risk === 'Spoiled' ? 'CRITICAL' : 'SAFE';
           
           let recommendations = [];
           if (mlResult.risk === 'Spoiled') {
             recommendations = [
-              'ML Model: High risk of spoilage detected!',
+              `ML Model: High risk of spoilage detected! (${mlResult.confidence}% confidence)`,
               'Temperature or humidity outside safe range',
               'Immediate action required',
               'Check cooling system and environmental controls',
@@ -217,7 +217,7 @@ const Dashboard = ({ onLogout }) => {
             ];
           } else {
             recommendations = [
-              'ML Model: Conditions appear safe',
+              `ML Model: Conditions appear safe (${mlResult.confidence}% confidence)`,
               'Temperature and humidity within optimal range',
               'Continue standard monitoring',
               'No immediate action required'

@@ -472,6 +472,76 @@ async def test_ml_model():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Test failed: {str(e)}")
 
+# ML Model Prediction Endpoints
+class PredictionRequest(BaseModel):
+    batch_id: str
+    temp_c: float
+    humidity: float
+
+@app.post("/coldchain/predict")
+async def predict_risk(request: PredictionRequest):
+    """Predict risk (Safe/Spoiled) based on temperature and humidity"""
+    if model is None or scaler is None:
+        raise HTTPException(status_code=500, detail="ML model not loaded")
+    
+    try:
+        # Prepare features
+        features = [[request.temp_c, request.humidity]]
+        features_scaled = scaler.transform(features)
+        
+        # Make prediction
+        prediction = model.predict(features_scaled)[0]
+        
+        # Get prediction probability
+        probabilities = model.predict_proba(features_scaled)[0]
+        risk_score = probabilities[1] if prediction == "Spoiled" else probabilities[0]
+        
+        return {
+            "batch_id": request.batch_id,
+            "temp_c": request.temp_c,
+            "humidity": request.humidity,
+            "risk": prediction,
+            "risk_score": round(risk_score * 100, 2),
+            "confidence": round(max(probabilities) * 100, 2)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+
+@app.get("/coldchain/test")
+async def test_model():
+    """Test the ML model with dummy data"""
+    if model is None or scaler is None:
+        raise HTTPException(status_code=500, detail="ML model not loaded")
+    
+    try:
+        # Test with safe conditions
+        safe_features = [[4.5, 70]]
+        safe_scaled = scaler.transform(safe_features)
+        safe_prediction = model.predict(safe_scaled)[0]
+        
+        # Test with spoiled conditions
+        spoiled_features = [[1.0, 65]]
+        spoiled_scaled = scaler.transform(spoiled_features)
+        spoiled_prediction = model.predict(spoiled_scaled)[0]
+        
+        return {
+            "model_status": "loaded",
+            "test_predictions": {
+                "safe_case": {
+                    "temp_c": 4.5,
+                    "humidity": 70,
+                    "prediction": safe_prediction
+                },
+                "spoiled_case": {
+                    "temp_c": 1.0,
+                    "humidity": 65,
+                    "prediction": spoiled_prediction
+                }
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Test failed: {str(e)}")
+
 # Inventory Management Endpoints
 @app.get("/inventory")
 async def get_inventory():
