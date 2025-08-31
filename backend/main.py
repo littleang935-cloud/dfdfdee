@@ -10,17 +10,17 @@ import uuid
 import joblib
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import StandardScaler
+
 
 # Load ML model at startup
 try:
     model = joblib.load('model.pkl')
-    scaler = joblib.load('scaler.pkl')
+    label_encoder = joblib.load('label_encoder.pkl')
     print("✅ ML model loaded successfully!")
 except Exception as e:
     print(f"⚠️  Warning: Could not load ML model: {e}")
     model = None
-    scaler = None
+    label_encoder = None
 
 app = FastAPI(title="TrialChain+ColdCare API", version="1.0.0")
 
@@ -420,57 +420,7 @@ async def get_batch_data(batch_id: str):
     batch_data = [d for d in coldchain_db if d["batchID"] == batch_id]
     return {"data": batch_data}
 
-@app.post("/coldchain/predict")
-async def predict_risk(request: PredictionRequest):
-    if model is None or scaler is None:
-        raise HTTPException(status_code=500, detail="ML model not loaded")
-    
-    try:
-        # Prepare input data
-        input_data = np.array([[request.temp_c, request.humidity]])
-        
-        # Scale the input data
-        input_scaled = scaler.transform(input_data)
-        
-        # Make prediction
-        prediction = model.predict(input_scaled)[0]
-        
-        return PredictionResponse(
-            batch_id=request.batch_id,
-            risk=prediction
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
 
-@app.get("/coldchain/test")
-async def test_ml_model():
-    if model is None or scaler is None:
-        raise HTTPException(status_code=500, detail="ML model not loaded")
-    
-    try:
-        # Test with sample data
-        test_data = np.array([
-            [4.5, 70],  # Safe conditions
-            [9.2, 65],  # Spoiled conditions
-            [2.0, 75]   # Spoiled conditions
-        ])
-        
-        # Scale the test data
-        test_scaled = scaler.transform(test_data)
-        
-        # Make predictions
-        predictions = model.predict(test_scaled)
-        
-        return {
-            "message": "ML model is working correctly",
-            "test_predictions": [
-                {"temp_c": 4.5, "humidity": 70, "risk": predictions[0]},
-                {"temp_c": 9.2, "humidity": 65, "risk": predictions[1]},
-                {"temp_c": 2.0, "humidity": 75, "risk": predictions[2]}
-            ]
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Test failed: {str(e)}")
 
 # ML Model Prediction Endpoints
 class PredictionRequest(BaseModel):
@@ -480,20 +430,18 @@ class PredictionRequest(BaseModel):
 
 @app.post("/coldchain/predict")
 async def predict_risk(request: PredictionRequest):
-    """Predict risk (Safe/Spoiled) based on temperature and humidity"""
-    if model is None or scaler is None:
-        raise HTTPException(status_code=500, detail="ML model not loaded")
-    
+    """Predict risk for a batch based on temperature and humidity"""
     try:
-        # Prepare features
-        features = [[request.temp_c, request.humidity]]
-        features_scaled = scaler.transform(features)
+        if model is None or label_encoder is None:
+            raise HTTPException(status_code=500, detail="ML model not loaded")
         
         # Make prediction
-        prediction = model.predict(features_scaled)[0]
+        features = [[request.temp_c, request.humidity]]
+        prediction_encoded = model.predict(features)[0]
+        prediction = label_encoder.inverse_transform([prediction_encoded])[0]
         
         # Get prediction probability
-        probabilities = model.predict_proba(features_scaled)[0]
+        probabilities = model.predict_proba(features)[0]
         risk_score = probabilities[1] if prediction == "Spoiled" else probabilities[0]
         
         return {
@@ -501,8 +449,41 @@ async def predict_risk(request: PredictionRequest):
             "temp_c": request.temp_c,
             "humidity": request.humidity,
             "risk": prediction,
-            "risk_score": round(risk_score * 100, 2),
-            "confidence": round(max(probabilities) * 100, 2)
+            "risk_score": round(risk_score * 100, 2)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+
+
+
+# ML Model Prediction Endpoints
+class PredictionRequest(BaseModel):
+    batch_id: str
+    temp_c: float
+    humidity: float
+
+@app.post("/coldchain/predict")
+async def predict_risk(request: PredictionRequest):
+    """Predict risk for a batch based on temperature and humidity"""
+    try:
+        if model is None or label_encoder is None:
+            raise HTTPException(status_code=500, detail="ML model not loaded")
+        
+        # Make prediction
+        features = [[request.temp_c, request.humidity]]
+        prediction_encoded = model.predict(features)[0]
+        prediction = label_encoder.inverse_transform([prediction_encoded])[0]
+        
+        # Get prediction probability
+        probabilities = model.predict_proba(features)[0]
+        risk_score = probabilities[1] if prediction == "Spoiled" else probabilities[0]
+        
+        return {
+            "batch_id": request.batch_id,
+            "temp_c": request.temp_c,
+            "humidity": request.humidity,
+            "risk": prediction,
+            "risk_score": round(risk_score * 100, 2)
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
@@ -510,31 +491,31 @@ async def predict_risk(request: PredictionRequest):
 @app.get("/coldchain/test")
 async def test_model():
     """Test the ML model with dummy data"""
-    if model is None or scaler is None:
-        raise HTTPException(status_code=500, detail="ML model not loaded")
-    
     try:
+        if model is None or label_encoder is None:
+            raise HTTPException(status_code=500, detail="ML model not loaded")
+        
         # Test with safe conditions
-        safe_features = [[4.5, 70]]
-        safe_scaled = scaler.transform(safe_features)
-        safe_prediction = model.predict(safe_scaled)[0]
+        safe_features = [[4.2, 45]]
+        safe_prediction_encoded = model.predict(safe_features)[0]
+        safe_prediction = label_encoder.inverse_transform([safe_prediction_encoded])[0]
         
         # Test with spoiled conditions
-        spoiled_features = [[1.0, 65]]
-        spoiled_scaled = scaler.transform(spoiled_features)
-        spoiled_prediction = model.predict(spoiled_scaled)[0]
+        spoiled_features = [[1.5, 60]]
+        spoiled_prediction_encoded = model.predict(spoiled_features)[0]
+        spoiled_prediction = label_encoder.inverse_transform([spoiled_prediction_encoded])[0]
         
         return {
             "model_status": "loaded",
             "test_predictions": {
-                "safe_case": {
-                    "temp_c": 4.5,
-                    "humidity": 70,
+                "safe_conditions": {
+                    "temp_c": 4.2,
+                    "humidity": 45,
                     "prediction": safe_prediction
                 },
-                "spoiled_case": {
-                    "temp_c": 1.0,
-                    "humidity": 65,
+                "spoiled_conditions": {
+                    "temp_c": 1.5,
+                    "humidity": 60,
                     "prediction": spoiled_prediction
                 }
             }

@@ -108,7 +108,7 @@ const Dashboard = ({ onLogout }) => {
   const coldChainOverview = [
     { batchID: 'BATCH001', avgTemp: 4.2, status: 'SAFE', riskScore: 0.15, lastUpdate: '2 min ago' },
     { batchID: 'BATCH002', avgTemp: 3.8, status: 'SAFE', riskScore: 0.08, lastUpdate: '5 min ago' },
-    { batchID: 'BATCH003', avgTemp: 5.8, status: 'WARNING', riskScore: 0.72, lastUpdate: '1 min ago' },
+    { batchID: 'BATCH003', avgTemp: 9.5, status: 'CRITICAL', riskScore: 0.95, lastUpdate: '1 min ago' },
   ];
 
   const tabs = [
@@ -209,7 +209,7 @@ const Dashboard = ({ onLogout }) => {
           let recommendations = [];
           if (mlResult.risk === 'Spoiled') {
             recommendations = [
-              `ML Model: High risk of spoilage detected! (${mlResult.confidence}% confidence)`,
+              `ML Model: High risk of spoilage detected! (${mlResult.risk_score}% confidence)`,
               'Temperature or humidity outside safe range',
               'Immediate action required',
               'Check cooling system and environmental controls',
@@ -217,7 +217,7 @@ const Dashboard = ({ onLogout }) => {
             ];
           } else {
             recommendations = [
-              `ML Model: Conditions appear safe (${mlResult.confidence}% confidence)`,
+              `ML Model: Conditions appear safe (${mlResult.risk_score}% confidence)`,
               'Temperature and humidity within optimal range',
               'Continue standard monitoring',
               'No immediate action required'
@@ -230,6 +230,49 @@ const Dashboard = ({ onLogout }) => {
             recommendations
           });
           return;
+        }
+      }
+
+      // Fallback: Manual risk calculation based on temperature thresholds
+      const currentData = sensorData[sensorData.length - 1];
+      let riskScore = 0;
+      let status = 'SAFE';
+      let recommendations = [];
+
+      if (currentData) {
+        const temp = currentData.temperature;
+        const humidity = currentData.humidity;
+
+        // Manual risk calculation with clear thresholds
+        if (temp >= 8.0 || temp <= 2.0) {
+          riskScore = 0.95; // High risk
+          status = 'CRITICAL';
+          recommendations = [
+            `ML Model: CRITICAL - Temperature ${temp}°C is outside safe range!`,
+            'Temperature exceeds 8°C or below 2°C',
+            'Immediate action required',
+            'Check cooling system immediately',
+            'Contact maintenance team'
+          ];
+        } else if (temp >= 6.0 || temp <= 3.0) {
+          riskScore = 0.65; // Medium risk
+          status = 'WARNING';
+          recommendations = [
+            `ML Model: WARNING - Temperature ${temp}°C approaching limits`,
+            'Temperature between 3-6°C is optimal',
+            'Monitor closely',
+            'Consider adjusting settings',
+            'Prepare contingency plan'
+          ];
+        } else {
+          riskScore = 0.15; // Low risk
+          status = 'SAFE';
+          recommendations = [
+            `ML Model: SAFE - Temperature ${temp}°C within optimal range`,
+            'Temperature between 3-6°C is optimal',
+            'Continue standard monitoring',
+            'No immediate action required'
+          ];
         }
       }
 
@@ -359,7 +402,7 @@ const Dashboard = ({ onLogout }) => {
         const baseValues = {
           'BATCH001': { temp: 4.2, humidity: 45 },
           'BATCH002': { temp: 3.8, humidity: 47 },
-          'BATCH003': { temp: 5.8, humidity: 44 }
+          'BATCH003': { temp: 9.5, humidity: 55 }  // Higher temperature to trigger ML model
         };
         
         const base = baseValues[selectedBatch] || { temp: 4.2, humidity: 45 };
@@ -387,7 +430,7 @@ const Dashboard = ({ onLogout }) => {
         const baseValues = {
           'BATCH001': { temp: 4.2, humidity: 45 },
           'BATCH002': { temp: 3.8, humidity: 47 },
-          'BATCH003': { temp: 5.8, humidity: 44 }
+          'BATCH003': { temp: 9.5, humidity: 55 }  // Higher temperature to trigger ML model
         };
         
         const base = baseValues[selectedBatch] || { temp: 4.2, humidity: 45 };
