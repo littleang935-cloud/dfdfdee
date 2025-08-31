@@ -216,6 +216,76 @@ const LandingPage = ({ onLogin }) => {
                  />
                ))}
 
+               {/* Floating geometric shapes */}
+               {[...Array(8)].map((_, i) => (
+                 <motion.div
+                   key={`shape-${i}`}
+                   className={`absolute ${
+                     isDarkMode ? 'bg-white/5' : 'bg-blue-500/5'
+                   }`}
+                   style={{
+                     left: `${Math.random() * 100}%`,
+                     top: `${Math.random() * 100}%`,
+                     width: `${20 + Math.random() * 30}px`,
+                     height: `${20 + Math.random() * 30}px`,
+                     borderRadius: Math.random() > 0.5 ? '50%' : '0%',
+                   }}
+                   animate={{
+                     y: [0, -50, 0],
+                     x: [0, Math.random() * 20 - 10, 0],
+                     rotate: [0, 360],
+                     scale: [1, 1.2, 1],
+                   }}
+                   transition={{
+                     duration: 10 + Math.random() * 10,
+                     repeat: Infinity,
+                     delay: Math.random() * 5,
+                     ease: "easeInOut",
+                   }}
+                 />
+               ))}
+
+               {/* Pulsing circles */}
+               {[...Array(6)].map((_, i) => (
+                 <motion.div
+                   key={`pulse-${i}`}
+                   className={`absolute rounded-full ${
+                     isDarkMode ? 'bg-purple-500/10' : 'bg-purple-300/20'
+                   }`}
+                   style={{
+                     left: `${Math.random() * 100}%`,
+                     top: `${Math.random() * 100}%`,
+                     width: `${40 + Math.random() * 60}px`,
+                     height: `${40 + Math.random() * 60}px`,
+                   }}
+                   animate={{
+                     scale: [0, 1, 0],
+                     opacity: [0, 0.5, 0],
+                   }}
+                   transition={{
+                     duration: 4 + Math.random() * 2,
+                     repeat: Infinity,
+                     delay: Math.random() * 3,
+                     ease: "easeInOut",
+                   }}
+                 />
+               ))}
+
+               {/* Wave effect */}
+               <motion.div
+                 className={`absolute bottom-0 left-0 right-0 h-32 ${
+                   isDarkMode ? 'bg-gradient-to-t from-white/5 to-transparent' : 'bg-gradient-to-t from-blue-500/5 to-transparent'
+                 }`}
+                 animate={{
+                   y: [0, -10, 0],
+                 }}
+                 transition={{
+                   duration: 8,
+                   repeat: Infinity,
+                   ease: "easeInOut",
+                 }}
+               />
+
                {/* Subtle grid pattern */}
                <div className={`absolute inset-0 opacity-5 ${
                  isDarkMode ? 'bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)]'
@@ -282,19 +352,21 @@ const LandingPage = ({ onLogin }) => {
               isDarkMode ? 'from-purple-400 to-pink-400' : 'from-purple-600 to-pink-600'
             }`}>
               Health{' '}
-              <motion.span
-                key={rollingText}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ 
-                  duration: 0.6,
-                  ease: "easeInOut"
-                }}
-                className="inline-block ml-2"
-              >
-                {rollingWords[rollingText]}
-              </motion.span>
+              <span className="inline-block ml-2 relative overflow-hidden" style={{ width: '80px', height: '60px' }}>
+                <motion.div
+                  key={rollingText}
+                  initial={{ y: 60, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -60, opacity: 0 }}
+                  transition={{ 
+                    duration: 0.8,
+                    ease: "easeInOut"
+                  }}
+                  className="absolute top-0 left-0 w-full"
+                >
+                  {rollingWords[rollingText]}
+                </motion.div>
+              </span>
             </span>
           </h1>
           <h2 className={`text-2xl md:text-3xl font-semibold mb-8 ${
