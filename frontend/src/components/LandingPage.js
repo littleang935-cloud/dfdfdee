@@ -281,17 +281,22 @@ const LandingPage = ({ onLogin }) => {
             <span className={`bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent ${
               isDarkMode ? 'from-purple-400 to-pink-400' : 'from-purple-600 to-pink-600'
             }`}>
-              Health
-              <motion.span
-                key={rollingText}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-                className="inline-block"
-              >
-                {rollingWords[rollingText]}
-              </motion.span>
+              Health{' '}
+              <span className="inline-block w-32 h-16 relative overflow-hidden">
+                <motion.span
+                  key={rollingText}
+                  initial={{ y: 50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -50, opacity: 0 }}
+                  transition={{ 
+                    duration: 0.6,
+                    ease: "easeInOut"
+                  }}
+                  className="absolute top-0 left-0 w-full text-center"
+                >
+                  {rollingWords[rollingText]}
+                </motion.span>
+              </span>
             </span>
           </h1>
           <h2 className={`text-2xl md:text-3xl font-semibold mb-8 ${
