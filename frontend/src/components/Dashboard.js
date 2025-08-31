@@ -282,12 +282,7 @@ const Dashboard = ({ onLogout }) => {
         const analysis = await response.json();
         setRiskAnalysis(analysis);
       } else {
-        // Calculate risk based on current sensor data
-        const currentData = sensorData[sensorData.length - 1];
-        let riskScore = 0;
-        let status = 'SAFE';
-        let recommendations = [];
-
+        // Use the existing currentData variable
         if (currentData) {
           const temp = currentData.temperature;
           const humidity = currentData.humidity;
