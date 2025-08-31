@@ -52,8 +52,19 @@ const LandingPage = ({ onLogin }) => {
         clearInterval(typeInterval);
         // Wait a bit, then start deleting
         setTimeout(() => {
-          setIsTyping(false);
-        }, 1000);
+          // Backspace animation
+          const backspaceInterval = setInterval(() => {
+            setTypingText(prev => {
+              if (prev.length > 0) {
+                return prev.slice(0, -1);
+              } else {
+                clearInterval(backspaceInterval);
+                setIsTyping(false);
+                return '';
+              }
+            });
+          }, 100); // Backspace speed
+        }, 1500); // Wait longer before backspacing
       }
     }, 150); // Type speed
 
@@ -133,17 +144,17 @@ const LandingPage = ({ onLogin }) => {
     <div className={`min-h-screen transition-all duration-500 ${
       isDarkMode 
         ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white' 
-        : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900'
+        : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 text-gray-900'
     } relative overflow-hidden`}>
       
                    {/* Smooth Moving Background */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Large blurred balls moving slowly */}
         <motion.div
-          className={`absolute w-96 h-96 rounded-full blur-3xl ${
+          className={`absolute w-96 h-96 rounded-full blur-xl ${
             isDarkMode 
-              ? 'bg-gradient-to-r from-blue-400/20 to-purple-400/20' 
-              : 'bg-gradient-to-r from-blue-300/30 to-purple-300/30'
+              ? 'bg-gradient-to-r from-blue-400/25 to-purple-400/25' 
+              : 'bg-gradient-to-r from-blue-400/40 to-purple-400/40'
           }`}
           style={{
             top: '10%',
@@ -162,10 +173,10 @@ const LandingPage = ({ onLogin }) => {
         />
         
         <motion.div
-          className={`absolute w-80 h-80 rounded-full blur-3xl ${
+          className={`absolute w-80 h-80 rounded-full blur-xl ${
             isDarkMode 
-              ? 'bg-gradient-to-r from-purple-400/20 to-pink-400/20' 
-              : 'bg-gradient-to-r from-purple-300/30 to-pink-300/30'
+              ? 'bg-gradient-to-r from-purple-400/25 to-pink-400/25' 
+              : 'bg-gradient-to-r from-purple-400/40 to-pink-400/40'
           }`}
           style={{
             top: '60%',
@@ -184,10 +195,10 @@ const LandingPage = ({ onLogin }) => {
         />
         
         <motion.div
-          className={`absolute w-72 h-72 rounded-full blur-3xl ${
+          className={`absolute w-72 h-72 rounded-full blur-xl ${
             isDarkMode 
-              ? 'bg-gradient-to-r from-green-400/15 to-blue-400/15' 
-              : 'bg-gradient-to-r from-green-300/25 to-blue-300/25'
+              ? 'bg-gradient-to-r from-green-400/20 to-blue-400/20' 
+              : 'bg-gradient-to-r from-green-400/35 to-blue-400/35'
           }`}
           style={{
             top: '30%',
@@ -207,10 +218,10 @@ const LandingPage = ({ onLogin }) => {
 
         {/* More moving balls for richer background */}
         <motion.div
-          className={`absolute w-64 h-64 rounded-full blur-2xl ${
+          className={`absolute w-64 h-64 rounded-full blur-lg ${
             isDarkMode 
-              ? 'bg-gradient-to-r from-indigo-400/15 to-cyan-400/15' 
-              : 'bg-gradient-to-r from-indigo-300/25 to-cyan-300/25'
+              ? 'bg-gradient-to-r from-indigo-400/20 to-cyan-400/20' 
+              : 'bg-gradient-to-r from-indigo-400/35 to-cyan-400/35'
           }`}
           style={{
             top: '70%',
@@ -229,10 +240,10 @@ const LandingPage = ({ onLogin }) => {
         />
 
         <motion.div
-          className={`absolute w-56 h-56 rounded-full blur-2xl ${
+          className={`absolute w-56 h-56 rounded-full blur-lg ${
             isDarkMode 
-              ? 'bg-gradient-to-r from-pink-400/15 to-orange-400/15' 
-              : 'bg-gradient-to-r from-pink-300/25 to-orange-300/25'
+              ? 'bg-gradient-to-r from-pink-400/20 to-orange-400/20' 
+              : 'bg-gradient-to-r from-pink-400/35 to-orange-400/35'
           }`}
           style={{
             top: '20%',
@@ -251,10 +262,10 @@ const LandingPage = ({ onLogin }) => {
         />
 
         <motion.div
-          className={`absolute w-48 h-48 rounded-full blur-2xl ${
+          className={`absolute w-48 h-48 rounded-full blur-lg ${
             isDarkMode 
-              ? 'bg-gradient-to-r from-emerald-400/15 to-teal-400/15' 
-              : 'bg-gradient-to-r from-emerald-300/25 to-teal-300/25'
+              ? 'bg-gradient-to-r from-emerald-400/20 to-teal-400/20' 
+              : 'bg-gradient-to-r from-emerald-400/35 to-teal-400/35'
           }`}
           style={{
             top: '80%',
