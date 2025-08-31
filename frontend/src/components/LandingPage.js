@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 const LandingPage = ({ onLogin }) => {
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false); // Light mode default
   const [mounted, setMounted] = useState(false);
   const [rollingText, setRollingText] = useState(0);
 
@@ -111,187 +111,106 @@ const LandingPage = ({ onLogin }) => {
         : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900'
     } relative overflow-hidden`}>
       
-                   {/* Dynamic Moving Background */}
-             <div className="absolute inset-0 overflow-hidden">
-               {/* Floating particles */}
-               {[...Array(20)].map((_, i) => (
-                 <motion.div
-                   key={i}
-                   className={`absolute w-2 h-2 rounded-full ${
-                     isDarkMode ? 'bg-white/20' : 'bg-blue-500/20'
-                   }`}
-                   style={{
-                     left: `${Math.random() * 100}%`,
-                     top: `${Math.random() * 100}%`,
-                   }}
-                   animate={{
-                     y: [0, -100, 0],
-                     opacity: [0, 1, 0],
-                   }}
-                   transition={{
-                     duration: 8 + Math.random() * 4,
-                     repeat: Infinity,
-                     delay: Math.random() * 5,
-                     ease: "easeInOut",
-                   }}
-                 />
-               ))}
+                   {/* Smooth Moving Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Large blurred balls moving slowly */}
+        <motion.div
+          className={`absolute w-96 h-96 rounded-full blur-3xl ${
+            isDarkMode 
+              ? 'bg-gradient-to-r from-blue-400/20 to-purple-400/20' 
+              : 'bg-gradient-to-r from-blue-300/30 to-purple-300/30'
+          }`}
+          style={{
+            top: '10%',
+            left: '10%',
+          }}
+          animate={{
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        
+        <motion.div
+          className={`absolute w-80 h-80 rounded-full blur-3xl ${
+            isDarkMode 
+              ? 'bg-gradient-to-r from-purple-400/20 to-pink-400/20' 
+              : 'bg-gradient-to-r from-purple-300/30 to-pink-300/30'
+          }`}
+          style={{
+            top: '60%',
+            right: '15%',
+          }}
+          animate={{
+            x: [0, -80, 0],
+            y: [0, 40, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 35,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        
+        <motion.div
+          className={`absolute w-72 h-72 rounded-full blur-3xl ${
+            isDarkMode 
+              ? 'bg-gradient-to-r from-green-400/15 to-blue-400/15' 
+              : 'bg-gradient-to-r from-green-300/25 to-blue-300/25'
+          }`}
+          style={{
+            top: '30%',
+            right: '30%',
+          }}
+          animate={{
+            x: [0, 60, 0],
+            y: [0, -30, 0],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 40,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
 
-               {/* Animated gradient orbs */}
-               <motion.div
-                 className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl ${
-                   isDarkMode
-                     ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10'
-                     : 'bg-gradient-to-r from-blue-200/30 to-purple-200/30'
-                 }`}
-                 animate={{
-                   x: [0, 50, 0],
-                   y: [0, -30, 0],
-                   scale: [1, 1.1, 1],
-                 }}
-                 transition={{
-                   duration: 25,
-                   repeat: Infinity,
-                   ease: "easeInOut",
-                 }}
-               />
-               <motion.div
-                 className={`absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl ${
-                   isDarkMode
-                     ? 'bg-gradient-to-r from-purple-500/10 to-pink-500/10'
-                     : 'bg-gradient-to-r from-purple-200/30 to-pink-200/30'
-                 }`}
-                 animate={{
-                   x: [0, -50, 0],
-                   y: [0, 30, 0],
-                   scale: [1, 1.2, 1],
-                 }}
-                 transition={{
-                   duration: 30,
-                   repeat: Infinity,
-                   ease: "easeInOut",
-                 }}
-               />
+        {/* Subtle floating particles */}
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={i}
+            className={`absolute w-1 h-1 rounded-full ${
+              isDarkMode ? 'bg-white/30' : 'bg-blue-500/20'
+            }`}
+            style={{
+              left: `${10 + Math.random() * 80}%`,
+              top: `${10 + Math.random() * 80}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              opacity: [0.3, 0.8, 0.3],
+            }}
+            transition={{
+              duration: 20 + Math.random() * 10,
+              repeat: Infinity,
+              delay: Math.random() * 10,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
 
-               {/* Additional floating elements */}
-               <motion.div
-                 className={`absolute top-1/3 right-1/3 w-64 h-64 rounded-full blur-2xl ${
-                   isDarkMode
-                     ? 'bg-gradient-to-r from-green-500/5 to-blue-500/5'
-                     : 'bg-gradient-to-r from-green-200/20 to-blue-200/20'
-                 }`}
-                 animate={{
-                   x: [0, 30, 0],
-                   y: [0, -20, 0],
-                   rotate: [0, 180, 360],
-                 }}
-                 transition={{
-                   duration: 40,
-                   repeat: Infinity,
-                   ease: "easeInOut",
-                 }}
-               />
-
-               {/* Moving lines */}
-               {[...Array(5)].map((_, i) => (
-                 <motion.div
-                   key={`line-${i}`}
-                   className={`absolute h-px w-32 ${
-                     isDarkMode ? 'bg-white/10' : 'bg-blue-500/10'
-                   }`}
-                   style={{
-                     left: `${Math.random() * 100}%`,
-                     top: `${Math.random() * 100}%`,
-                   }}
-                   animate={{
-                     x: [0, 200, 0],
-                     opacity: [0, 1, 0],
-                   }}
-                   transition={{
-                     duration: 15 + Math.random() * 10,
-                     repeat: Infinity,
-                     delay: Math.random() * 10,
-                     ease: "easeInOut",
-                   }}
-                 />
-               ))}
-
-               {/* Floating geometric shapes */}
-               {[...Array(8)].map((_, i) => (
-                 <motion.div
-                   key={`shape-${i}`}
-                   className={`absolute ${
-                     isDarkMode ? 'bg-white/5' : 'bg-blue-500/5'
-                   }`}
-                   style={{
-                     left: `${Math.random() * 100}%`,
-                     top: `${Math.random() * 100}%`,
-                     width: `${20 + Math.random() * 30}px`,
-                     height: `${20 + Math.random() * 30}px`,
-                     borderRadius: Math.random() > 0.5 ? '50%' : '0%',
-                   }}
-                   animate={{
-                     y: [0, -50, 0],
-                     x: [0, Math.random() * 20 - 10, 0],
-                     rotate: [0, 360],
-                     scale: [1, 1.2, 1],
-                   }}
-                   transition={{
-                     duration: 10 + Math.random() * 10,
-                     repeat: Infinity,
-                     delay: Math.random() * 5,
-                     ease: "easeInOut",
-                   }}
-                 />
-               ))}
-
-               {/* Pulsing circles */}
-               {[...Array(6)].map((_, i) => (
-                 <motion.div
-                   key={`pulse-${i}`}
-                   className={`absolute rounded-full ${
-                     isDarkMode ? 'bg-purple-500/10' : 'bg-purple-300/20'
-                   }`}
-                   style={{
-                     left: `${Math.random() * 100}%`,
-                     top: `${Math.random() * 100}%`,
-                     width: `${40 + Math.random() * 60}px`,
-                     height: `${40 + Math.random() * 60}px`,
-                   }}
-                   animate={{
-                     scale: [0, 1, 0],
-                     opacity: [0, 0.5, 0],
-                   }}
-                   transition={{
-                     duration: 4 + Math.random() * 2,
-                     repeat: Infinity,
-                     delay: Math.random() * 3,
-                     ease: "easeInOut",
-                   }}
-                 />
-               ))}
-
-               {/* Wave effect */}
-               <motion.div
-                 className={`absolute bottom-0 left-0 right-0 h-32 ${
-                   isDarkMode ? 'bg-gradient-to-t from-white/5 to-transparent' : 'bg-gradient-to-t from-blue-500/5 to-transparent'
-                 }`}
-                 animate={{
-                   y: [0, -10, 0],
-                 }}
-                 transition={{
-                   duration: 8,
-                   repeat: Infinity,
-                   ease: "easeInOut",
-                 }}
-               />
-
-               {/* Subtle grid pattern */}
-               <div className={`absolute inset-0 opacity-5 ${
-                 isDarkMode ? 'bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)]'
-                 : 'bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.1)_1px,transparent_0)]'
-               } bg-[length:20px_20px]`} />
-             </div>
+        {/* Subtle grid pattern */}
+        <div className={`absolute inset-0 opacity-3 ${
+          isDarkMode 
+            ? 'bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.1)_1px,transparent_0)]'
+            : 'bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.05)_1px,transparent_0)]'
+        } bg-[length:30px_30px]`} />
+      </div>
 
                    {/* Theme Toggle - Bottom Right */}
              <motion.button
