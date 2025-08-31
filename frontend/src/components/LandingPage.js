@@ -193,21 +193,43 @@ const LandingPage = ({ onLogin }) => {
 
           {/* Navigation Items */}
           <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
+            {navItems.slice(0, -1).map((item) => (
               <motion.button
                 key={item.id}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => scrollToSection(item.id)}
-                className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+                className={`px-4 py-2 rounded-lg transition-all duration-300 shadow-sm ${
                   isDarkMode 
-                    ? 'text-white/80 hover:text-white hover:bg-white/10' 
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-white/30'
+                    ? 'text-white/80 hover:text-white hover:bg-white/10 hover:shadow-lg' 
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-white/30 hover:shadow-lg'
                 }`}
               >
                 {item.label}
               </motion.button>
             ))}
+            {/* Login Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onLogin}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 shadow-sm ${
+                isDarkMode 
+                  ? 'text-white/80 hover:text-white hover:bg-white/10 hover:shadow-lg' 
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-white/30 hover:shadow-lg'
+              }`}
+            >
+              Login
+            </motion.button>
+            {/* Special Get Started Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => scrollToSection('cta')}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              Get Started
+            </motion.button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -411,30 +433,7 @@ const LandingPage = ({ onLogin }) => {
                {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
              </motion.button>
 
-      {/* Navigation */}
-      <nav className="relative z-10 flex justify-between items-center p-6">
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="text-2xl font-bold flex items-center gap-2"
-        >
-          <Sparkles className={`w-8 h-8 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-          <span className={isDarkMode ? 'text-blue-400' : 'text-blue-600'}>Med</span>
-          <span className={isDarkMode ? 'text-green-400' : 'text-green-600'}>Chain</span>
-        </motion.div>
-        <motion.button
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          onClick={onLogin}
-          className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
-            isDarkMode 
-              ? 'bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20' 
-              : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
-          }`}
-        >
-          Login
-        </motion.button>
-      </nav>
+
 
       {/* Hero Section */}
       <section id="home" className="relative z-10 text-center px-6 py-20">
@@ -479,14 +478,28 @@ const LandingPage = ({ onLogin }) => {
             Revolutionary healthcare management system with blockchain-powered transparency and AI-driven insights. 
             Every medical transaction and patient care activity is securely recorded and monitored in real-time.
           </p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onLogin}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-2xl transition-all duration-300 flex items-center gap-2 mx-auto"
-          >
-            Get Started <ArrowRight size={20} />
-          </motion.button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onLogin}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-10 py-5 rounded-full text-xl font-semibold hover:shadow-2xl transition-all duration-300 flex items-center gap-3"
+            >
+              Get Started <ArrowRight size={24} />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onLogin}
+              className={`px-8 py-5 rounded-full text-xl font-semibold transition-all duration-300 border-2 ${
+                isDarkMode 
+                  ? 'text-white border-white/30 hover:bg-white/10 hover:border-white/50' 
+                  : 'text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+              }`}
+            >
+              Login
+            </motion.button>
+          </div>
         </motion.div>
 
         {/* Stats */}
