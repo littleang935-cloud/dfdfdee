@@ -1,27 +1,22 @@
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score, classification_report
 import joblib
 import os
 
 def train_model():
-    """Train a Logistic Regression model for cold chain risk prediction"""
+    """Train a Logistic Regression model on batch data and save it"""
     
-    # Load the data
-    print("Loading batch data...")
-    df = pd.read_csv('batch_data.csv')
+    # Read the data
+    data = pd.read_csv('batch_data.csv')
     
     # Prepare features and target
-    X = df[['temp_c', 'humidity']].values
-    y = df['target'].values
+    X = data[['temp_c', 'humidity']]
+    y = data['target']
     
     # Split the data
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
-    )
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
     # Scale the features
     scaler = StandardScaler()
@@ -29,25 +24,21 @@ def train_model():
     X_test_scaled = scaler.transform(X_test)
     
     # Train the model
-    print("Training Logistic Regression model...")
-    model = LogisticRegression(random_state=42, max_iter=1000)
+    model = LogisticRegression(random_state=42)
     model.fit(X_train_scaled, y_train)
     
     # Evaluate the model
-    y_pred = model.predict(X_test_scaled)
-    accuracy = accuracy_score(y_test, y_pred)
+    train_score = model.score(X_train_scaled, y_train)
+    test_score = model.score(X_test_scaled, y_test)
     
-    print(f"Model Accuracy: {accuracy:.2f}")
-    print("\nClassification Report:")
-    print(classification_report(y_test, y_pred))
+    print(f"Training accuracy: {train_score:.3f}")
+    print(f"Testing accuracy: {test_score:.3f}")
     
     # Save the model and scaler
-    print("Saving model and scaler...")
     joblib.dump(model, 'model.pkl')
     joblib.dump(scaler, 'scaler.pkl')
     
-    print("Model training completed successfully!")
-    print("Files saved: model.pkl, scaler.pkl")
+    print("Model and scaler saved as 'model.pkl' and 'scaler.pkl'")
     
     return model, scaler
 

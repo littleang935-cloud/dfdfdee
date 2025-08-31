@@ -369,6 +369,34 @@ Response: Detailed transaction information
 - **AI Risk Analysis**: Dynamic risk assessment
 - **Current Values Display**: Real-time sensor readings
 
+## 🤖 ML Model Integration
+
+### Model Training
+The system includes a trained Logistic Regression classifier for cold-chain risk prediction:
+
+1. **Training Data**: `backend/batch_data.csv` contains 40 samples with temperature, humidity, and target (Safe/Spoiled)
+2. **Features**: Temperature (°C) and Humidity (%)
+3. **Target**: Binary classification (Safe/Spoiled)
+4. **Training Script**: `backend/train_model.py`
+5. **Model Files**: `model.pkl` and `scaler.pkl`
+
+### Training Process
+```bash
+cd backend
+python3 train_model.py
+```
+
+### Model Performance
+- **Training Accuracy**: ~78%
+- **Testing Accuracy**: ~63%
+- **Features**: Temperature and Humidity scaling
+- **Output**: Safe/Spoiled classification
+
+### API Integration
+- **POST `/coldchain/predict`**: Real-time risk prediction
+- **GET `/coldchain/test`**: Model testing with sample data
+- **Automatic Loading**: Model loads at FastAPI startup
+
 ## 🔧 Technical Stack
 
 ### Frontend
