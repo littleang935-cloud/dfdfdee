@@ -182,12 +182,12 @@ const Dashboard = ({ onLogout }) => {
 
   const fetchRiskAnalysis = async (batchId) => {
     try {
-      // Get current sensor data
+      // Get current sensor data for the specific batch
       const currentData = sensorData[sensorData.length - 1];
       
       if (currentData) {
-        const temp = currentData.temperature;
-        const humidity = currentData.humidity;
+        const temp = parseFloat(currentData.temperature.toFixed(1));
+        const humidity = parseFloat(currentData.humidity.toFixed(1));
 
         // Logical risk calculation based on temperature thresholds
         let riskScore = 0;
@@ -376,8 +376,8 @@ const Dashboard = ({ onLogout }) => {
           
           data.push({
             time: timestamp.toLocaleTimeString(),
-            temperature: base.temp + tempVariation,
-            humidity: base.humidity + humidityVariation,
+            temperature: parseFloat((base.temp + tempVariation).toFixed(1)),
+            humidity: parseFloat((base.humidity + humidityVariation).toFixed(1)),
             timestamp: timestamp.toISOString()
           });
         }
@@ -402,8 +402,8 @@ const Dashboard = ({ onLogout }) => {
         
         const newPoint = {
           time: new Date().toLocaleTimeString(),
-          temperature: base.temp + tempVariation,
-          humidity: base.humidity + humidityVariation,
+          temperature: parseFloat((base.temp + tempVariation).toFixed(1)),
+          humidity: parseFloat((base.humidity + humidityVariation).toFixed(1)),
           timestamp: new Date().toISOString()
         };
 
@@ -441,7 +441,10 @@ const Dashboard = ({ onLogout }) => {
   // Update risk analysis when sensor data changes
   useEffect(() => {
     if (activeTab === 'coldchain' && sensorData.length > 0) {
-      // Update risk analysis every 10 seconds based on current data
+      // Update risk analysis immediately when sensor data changes
+      fetchRiskAnalysis(selectedBatch);
+      
+      // Also update every 10 seconds for continuous monitoring
       const interval = setInterval(() => {
         fetchRiskAnalysis(selectedBatch);
       }, 10000);
