@@ -77,6 +77,21 @@ const LandingPage = ({ onLogin }) => {
     setIsDarkMode(!isDarkMode);
   };
 
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const navItems = [
+    { id: 'home', label: 'Home' },
+    { id: 'features', label: 'Features' },
+    { id: 'stats', label: 'Stats' },
+    { id: 'testimonials', label: 'Testimonials' },
+    { id: 'cta', label: 'Get Started' }
+  ];
+
   const stats = [
     { label: "Items Tracked", value: "2,847", icon: Database },
     { label: "Uptime", value: "99.7%", icon: Activity },
@@ -145,9 +160,74 @@ const LandingPage = ({ onLogin }) => {
       isDarkMode 
         ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white' 
         : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 text-gray-900'
-    } relative overflow-hidden`}>
+        } relative overflow-hidden`}>
       
-                   {/* Smooth Moving Background */}
+      {/* Glass Panel Navigation */}
+      <motion.nav 
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className={`fixed top-0 left-0 right-0 z-50 p-4 ${
+          isDarkMode ? 'bg-white/10' : 'bg-white/20'
+        } backdrop-blur-md border-b ${
+          isDarkMode ? 'border-white/20' : 'border-gray-200/50'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          {/* Logo */}
+          <motion.div 
+            whileHover={{ scale: 1.05 }}
+            className="text-2xl font-bold"
+          >
+            <span className={`bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent ${
+              isDarkMode ? 'from-blue-400 to-green-400' : 'from-blue-600 to-green-600'
+            }`}>
+              Med
+            </span>
+            <span className={`bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent ${
+              isDarkMode ? 'from-purple-400 to-pink-400' : 'from-purple-600 to-pink-600'
+            }`}>
+              Chain
+            </span>
+          </motion.div>
+
+          {/* Navigation Items */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navItems.map((item) => (
+              <motion.button
+                key={item.id}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => scrollToSection(item.id)}
+                className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+                  isDarkMode 
+                    ? 'text-white/80 hover:text-white hover:bg-white/10' 
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-white/30'
+                }`}
+              >
+                {item.label}
+              </motion.button>
+            ))}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`md:hidden p-2 rounded-lg ${
+              isDarkMode 
+                ? 'text-white/80 hover:text-white hover:bg-white/10' 
+                : 'text-gray-700 hover:text-gray-900 hover:bg-white/30'
+            }`}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </motion.button>
+        </div>
+      </motion.nav>
+      
+      {/* Smooth Moving Background */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Large blurred balls moving slowly */}
         <motion.div
@@ -357,7 +437,7 @@ const LandingPage = ({ onLogin }) => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative z-10 text-center px-6 py-20">
+      <section id="home" className="relative z-10 text-center px-6 py-20">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -411,6 +491,7 @@ const LandingPage = ({ onLogin }) => {
 
         {/* Stats */}
         <motion.div
+          id="stats"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
@@ -443,7 +524,7 @@ const LandingPage = ({ onLogin }) => {
       </section>
 
       {/* Features Section */}
-      <section className="relative z-10 px-6 py-20">
+      <section id="features" className="relative z-10 px-6 py-20">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -490,7 +571,7 @@ const LandingPage = ({ onLogin }) => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="relative z-10 px-6 py-20">
+      <section id="testimonials" className="relative z-10 px-6 py-20">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -542,7 +623,7 @@ const LandingPage = ({ onLogin }) => {
       </section>
 
       {/* CTA Section */}
-      <section className="relative z-10 px-6 py-20">
+      <section id="cta" className="relative z-10 px-6 py-20">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
