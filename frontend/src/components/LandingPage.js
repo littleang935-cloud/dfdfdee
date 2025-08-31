@@ -22,6 +22,8 @@ const LandingPage = ({ onLogin }) => {
   const [isDarkMode, setIsDarkMode] = useState(false); // Light mode default
   const [mounted, setMounted] = useState(false);
   const [rollingText, setRollingText] = useState(0);
+  const [typingText, setTypingText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -30,10 +32,33 @@ const LandingPage = ({ onLogin }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       setRollingText((prev) => (prev + 1) % 3);
-    }, 2000); // Change every 2 seconds
+    }, 3000); // Change every 3 seconds
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const currentWord = rollingWords[rollingText];
+    let index = 0;
+    setIsTyping(true);
+    setTypingText('');
+
+    // Type out the word
+    const typeInterval = setInterval(() => {
+      if (index < currentWord.length) {
+        setTypingText(currentWord.slice(0, index + 1));
+        index++;
+      } else {
+        clearInterval(typeInterval);
+        // Wait a bit, then start deleting
+        setTimeout(() => {
+          setIsTyping(false);
+        }, 1000);
+      }
+    }, 150); // Type speed
+
+    return () => clearInterval(typeInterval);
+  }, [rollingText]);
 
   const rollingWords = ['care', 'chain', 'support'];
 
@@ -180,25 +205,92 @@ const LandingPage = ({ onLogin }) => {
           }}
         />
 
+        {/* More moving balls for richer background */}
+        <motion.div
+          className={`absolute w-64 h-64 rounded-full blur-2xl ${
+            isDarkMode 
+              ? 'bg-gradient-to-r from-indigo-400/15 to-cyan-400/15' 
+              : 'bg-gradient-to-r from-indigo-300/25 to-cyan-300/25'
+          }`}
+          style={{
+            top: '70%',
+            left: '5%',
+          }}
+          animate={{
+            x: [0, 120, 0],
+            y: [0, -40, 0],
+            scale: [1, 1.15, 1],
+          }}
+          transition={{
+            duration: 45,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        <motion.div
+          className={`absolute w-56 h-56 rounded-full blur-2xl ${
+            isDarkMode 
+              ? 'bg-gradient-to-r from-pink-400/15 to-orange-400/15' 
+              : 'bg-gradient-to-r from-pink-300/25 to-orange-300/25'
+          }`}
+          style={{
+            top: '20%',
+            left: '60%',
+          }}
+          animate={{
+            x: [0, -100, 0],
+            y: [0, 60, 0],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 50,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        <motion.div
+          className={`absolute w-48 h-48 rounded-full blur-2xl ${
+            isDarkMode 
+              ? 'bg-gradient-to-r from-emerald-400/15 to-teal-400/15' 
+              : 'bg-gradient-to-r from-emerald-300/25 to-teal-300/25'
+          }`}
+          style={{
+            top: '80%',
+            right: '5%',
+          }}
+          animate={{
+            x: [0, 80, 0],
+            y: [0, -60, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 55,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
         {/* Subtle floating particles */}
-        {[...Array(12)].map((_, i) => (
+        {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
             className={`absolute w-1 h-1 rounded-full ${
               isDarkMode ? 'bg-white/30' : 'bg-blue-500/20'
             }`}
             style={{
-              left: `${10 + Math.random() * 80}%`,
-              top: `${10 + Math.random() * 80}%`,
+              left: `${5 + Math.random() * 90}%`,
+              top: `${5 + Math.random() * 90}%`,
             }}
             animate={{
-              y: [0, -30, 0],
+              y: [0, -40, 0],
               opacity: [0.3, 0.8, 0.3],
             }}
             transition={{
-              duration: 20 + Math.random() * 10,
+              duration: 25 + Math.random() * 15,
               repeat: Infinity,
-              delay: Math.random() * 10,
+              delay: Math.random() * 15,
               ease: "easeInOut",
             }}
           />
@@ -271,19 +363,18 @@ const LandingPage = ({ onLogin }) => {
               isDarkMode ? 'from-purple-400 to-pink-400' : 'from-purple-600 to-pink-600'
             }`}>
               Health{' '}
-              <motion.span
-                key={rollingText}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ 
-                  duration: 0.5,
-                  ease: "easeInOut"
-                }}
-                className="inline-block"
-              >
-                {rollingWords[rollingText]}
-              </motion.span>
+              <span className="inline-block ml-2">
+                {typingText}
+                <motion.span
+                  animate={{ opacity: [1, 0, 1] }}
+                  transition={{ 
+                    duration: 0.8,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                  className="inline-block w-0.5 h-6 bg-current ml-1"
+                />
+              </span>
             </span>
           </h1>
           <h2 className={`text-2xl md:text-3xl font-semibold mb-8 ${
