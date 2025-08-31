@@ -79,20 +79,23 @@ const Dashboard = ({ onLogout }) => {
   ];
 
   const analyticsData = [
-    { month: 'Jan', items: 1200, value: 45000 },
-    { month: 'Feb', items: 1250, value: 48000 },
-    { month: 'Mar', items: 1300, value: 52000 },
-    { month: 'Apr', items: 1247, value: 47320 },
-    { month: 'May', items: 1280, value: 49000 },
-    { month: 'Jun', items: 1320, value: 51000 },
+    { month: 'Jan', items: 1185, value: 44250 },
+    { month: 'Feb', items: 1234, value: 46780 },
+    { month: 'Mar', items: 1298, value: 51890 },
+    { month: 'Apr', items: 1256, value: 48120 },
+    { month: 'May', items: 1312, value: 52340 },
+    { month: 'Jun', items: 1345, value: 53890 },
+    { month: 'Jul', items: 1378, value: 55230 },
+    { month: 'Aug', items: 1412, value: 56890 },
+    { month: 'Sep', items: 1389, value: 54320 },
   ];
 
   const pieData = [
-    { name: 'Antibiotics', value: 35, color: '#3B82F6' },
-    { name: 'Consumables', value: 25, color: '#10B981' },
-    { name: 'Equipment', value: 20, color: '#F59E0B' },
-    { name: 'Pain Management', value: 15, color: '#EF4444' },
-    { name: 'Diabetes Care', value: 5, color: '#8B5CF6' },
+    { name: 'Antibiotics', value: 32, color: '#3B82F6' },
+    { name: 'Consumables', value: 28, color: '#10B981' },
+    { name: 'Equipment', value: 22, color: '#F59E0B' },
+    { name: 'Pain Management', value: 12, color: '#EF4444' },
+    { name: 'Diabetes Care', value: 6, color: '#8B5CF6' },
   ];
 
   // Clinical Trials Overview Data
@@ -746,10 +749,10 @@ const Dashboard = ({ onLogout }) => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-gray-600">Total Items</p>
-                        <p className="text-2xl font-bold text-gray-900">1,247</p>
+                        <p className="text-2xl font-bold text-gray-900">1,389</p>
                         <p className="text-sm text-green-600 flex items-center mt-1">
                           <TrendingUp size={14} className="mr-1" />
-                          +12% from last month
+                          +8.7% from last month
                         </p>
                       </div>
                       <div className="p-3 bg-blue-100 rounded-lg">
@@ -762,10 +765,10 @@ const Dashboard = ({ onLogout }) => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-gray-600">Low Stock Alerts</p>
-                        <p className="text-2xl font-bold text-gray-900">23</p>
+                        <p className="text-2xl font-bold text-gray-900">31</p>
                         <p className="text-sm text-red-600 flex items-center mt-1">
                           <AlertTriangle size={14} className="mr-1" />
-                          +5 today
+                          +7 today
                         </p>
                       </div>
                       <div className="p-3 bg-red-100 rounded-lg">
@@ -778,10 +781,10 @@ const Dashboard = ({ onLogout }) => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-gray-600">Monthly Usage</p>
-                        <p className="text-2xl font-bold text-gray-900">$47,832</p>
+                        <p className="text-2xl font-bold text-gray-900">$54,320</p>
                         <p className="text-sm text-green-600 flex items-center mt-1">
                           <TrendingUp size={14} className="mr-1" />
-                          +8.2% from last month
+                          +13.6% from last month
                         </p>
                       </div>
                       <div className="p-3 bg-green-100 rounded-lg">
@@ -794,10 +797,10 @@ const Dashboard = ({ onLogout }) => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-gray-600">Inventory Value</p>
-                        <p className="text-2xl font-bold text-gray-900">$284,391</p>
-                        <p className="text-sm text-red-600 flex items-center mt-1">
+                        <p className="text-2xl font-bold text-gray-900">$312,450</p>
+                        <p className="text-sm text-green-600 flex items-center mt-1">
                           <TrendingUp size={14} className="mr-1" />
-                          -2.1% from last month
+                          +9.9% from last month
                         </p>
                       </div>
                       <div className="p-3 bg-purple-100 rounded-lg">
@@ -1133,7 +1136,7 @@ const Dashboard = ({ onLogout }) => {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Total Transactions</label>
                       <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-md">
-                        <span className="text-sm text-gray-700 font-medium">1,247</span>
+                        <span className="text-sm text-gray-700 font-medium">1,389</span>
                       </div>
                     </div>
                   </div>

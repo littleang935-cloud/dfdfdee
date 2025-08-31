@@ -93,10 +93,10 @@ const LandingPage = ({ onLogin }) => {
   ];
 
   const stats = [
-    { label: "Items Tracked", value: "2,847", icon: Database },
-    { label: "Uptime", value: "99.7%", icon: Activity },
+    { label: "Items Tracked", value: "1,389", icon: Database },
+    { label: "Uptime", value: "99.9%", icon: Activity },
     { label: "Support", value: "24/7", icon: Users },
-    { label: "Healthcare Partners", value: "73+", icon: Globe },
+    { label: "Healthcare Partners", value: "89+", icon: Globe },
   ];
 
   const features = [

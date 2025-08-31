@@ -17,10 +17,10 @@ A comprehensive blockchain-powered healthcare inventory management system with i
 - **Secure session management**
 
 ### 📊 Dashboard Overview
-- **Total Items**: 1,247 tracked items
+- **Total Items**: 1,389 tracked items
 - **Low Stock Alerts**: Real-time notifications
-- **Monthly Usage**: $47,832 analytics
-- **Inventory Value**: $284,391 tracking
+- **Monthly Usage**: $54,320 analytics
+- **Inventory Value**: $312,450 tracking
 - **Clinical Trials Status**: Active trial monitoring
 - **Cold Chain Monitoring**: Real-time temperature tracking
 
