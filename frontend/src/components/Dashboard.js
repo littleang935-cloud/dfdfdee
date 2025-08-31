@@ -182,72 +182,24 @@ const Dashboard = ({ onLogout }) => {
 
   const fetchRiskAnalysis = async (batchId) => {
     try {
-      // First try to get ML prediction using current sensor data
+      // Get current sensor data
       const currentData = sensorData[sensorData.length - 1];
       
-      if (currentData) {
-        // Use ML model for prediction
-        const mlResponse = await fetch('http://localhost:8000/coldchain/predict', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            batch_id: batchId,
-            temp_c: currentData.temperature,
-            humidity: currentData.humidity
-          })
-        });
-
-        if (mlResponse.ok) {
-          const mlResult = await mlResponse.json();
-          
-          // Use ML model prediction directly
-          const riskScore = mlResult.risk_score / 100; // Convert percentage to decimal
-          const status = mlResult.risk === 'Spoiled' ? 'CRITICAL' : 'SAFE';
-          
-          let recommendations = [];
-          if (mlResult.risk === 'Spoiled') {
-            recommendations = [
-              `ML Model: High risk of spoilage detected! (${mlResult.risk_score}% confidence)`,
-              'Temperature or humidity outside safe range',
-              'Immediate action required',
-              'Check cooling system and environmental controls',
-              'Contact maintenance team immediately'
-            ];
-          } else {
-            recommendations = [
-              `ML Model: Conditions appear safe (${mlResult.risk_score}% confidence)`,
-              'Temperature and humidity within optimal range',
-              'Continue standard monitoring',
-              'No immediate action required'
-            ];
-          }
-
-          setRiskAnalysis({
-            status,
-            risk_score: riskScore,
-            recommendations
-          });
-          return;
-        }
-      }
-
-      // Fallback: Manual risk calculation based on temperature thresholds
-      let riskScore = 0;
-      let status = 'SAFE';
-      let recommendations = [];
-
       if (currentData) {
         const temp = currentData.temperature;
         const humidity = currentData.humidity;
 
-        // Manual risk calculation with clear thresholds
+        // Logical risk calculation based on temperature thresholds
+        let riskScore = 0;
+        let status = 'SAFE';
+        let recommendations = [];
+
+        // Temperature-based risk assessment (more logical)
         if (temp >= 8.0 || temp <= 2.0) {
           riskScore = 0.95; // High risk
           status = 'CRITICAL';
           recommendations = [
-            `ML Model: CRITICAL - Temperature ${temp}°C is outside safe range!`,
+            `CRITICAL - Temperature ${temp}°C is outside safe range!`,
             'Temperature exceeds 8°C or below 2°C',
             'Immediate action required',
             'Check cooling system immediately',
@@ -257,7 +209,7 @@ const Dashboard = ({ onLogout }) => {
           riskScore = 0.65; // Medium risk
           status = 'WARNING';
           recommendations = [
-            `ML Model: WARNING - Temperature ${temp}°C approaching limits`,
+            `WARNING - Temperature ${temp}°C approaching limits`,
             'Temperature between 3-6°C is optimal',
             'Monitor closely',
             'Consider adjusting settings',
@@ -267,13 +219,28 @@ const Dashboard = ({ onLogout }) => {
           riskScore = 0.15; // Low risk
           status = 'SAFE';
           recommendations = [
-            `ML Model: SAFE - Temperature ${temp}°C within optimal range`,
+            `SAFE - Temperature ${temp}°C within optimal range`,
             'Temperature between 3-6°C is optimal',
             'Continue standard monitoring',
             'No immediate action required'
           ];
         }
+
+        // Adjust for humidity if needed
+        if (humidity < 30 || humidity > 70) {
+          riskScore = Math.min(riskScore + 0.1, 1.0);
+          recommendations.push('Humidity levels need attention');
+        }
+
+        setRiskAnalysis({
+          status,
+          risk_score: riskScore,
+          recommendations
+        });
+        return;
       }
+
+
 
       // Fallback to traditional risk calculation
       const response = await fetch(`http://localhost:8000/coldchain/risk?batch_id=${batchId}`);
