@@ -21,10 +21,21 @@ import {
 const LandingPage = ({ onLogin }) => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [rollingText, setRollingText] = useState(0);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRollingText((prev) => (prev + 1) % 3);
+    }, 2000); // Change every 2 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const rollingWords = ['care', 'chain', 'support'];
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
@@ -270,7 +281,17 @@ const LandingPage = ({ onLogin }) => {
             <span className={`bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent ${
               isDarkMode ? 'from-purple-400 to-pink-400' : 'from-purple-600 to-pink-600'
             }`}>
-              Healthcare
+              Health
+              <motion.span
+                key={rollingText}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+                className="inline-block"
+              >
+                {rollingWords[rollingText]}
+              </motion.span>
             </span>
           </h1>
           <h2 className={`text-2xl md:text-3xl font-semibold mb-8 ${
